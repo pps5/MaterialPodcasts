@@ -1,0 +1,40 @@
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+    <channel>
+        <title>Awesome Podcast!</title>
+        <link>https://example.com/feeds/</link>
+        <language>en-US</language>
+        <description>This is awesome podcast!</description>
+        <copyright>2018 Example Copyright</copyright>
+        <itunes:owner>
+            <itunes:name>Great owner</itunes:name>
+            <itunes:email>example@example.com</itunes:email>
+        </itunes:owner>
+        <itunes:author>Great author</itunes:author>
+        <itunes:subtitle>Awesome Podcast!</itunes:subtitle>
+        <itunes:summary>This is awesome podcast!</itunes:summary>
+        <item>
+            <title>First track</title>
+            <itunes:subtitle>First track subtitle</itunes:subtitle>
+            <enclosure url="https://example.com/feeds?track=1" length="10000" type="audio/mpeg"/>
+            <guid>https://example.com/feeds?track=1</guid>
+            <link>https://example.com/feeds?track=1</link>
+            <description>This is first track of Awesome Podcast!</description>
+            <pubDate>Fri, 26 Jun 2000 20:00:00 0000</pubDate>
+            <itunes:author>Great author</itunes:author>
+            <itunes:keywords>technology</itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+        </item>
+        <item>
+            <title>Second track</title>
+            <itunes:subtitle>Second track subtitle</itunes:subtitle>
+            <enclosure url="https://example.com/feeds?track=2" length="20000" type="audio/mpeg"/>
+            <guid>https://example.com/feeds?track=2</guid>
+            <link>https://example.com/feeds?track=2</link>
+            <description>This is second track of Awesome Podcast!</description>
+            <pubDate>Fri, 26 Jun 2001 20:00:00 0000</pubDate>
+            <itunes:author>Great author</itunes:author>
+            <itunes:keywords>technology</itunes:keywords>
+            <itunes:explicit>no</itunes:explicit>
+        </item>
+    </channel>
+</rss>

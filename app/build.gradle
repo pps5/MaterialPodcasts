@@ -63,7 +63,6 @@ dependencies {
     // http
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-jaxb:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
     // to be replaced with non-experimental adapter
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-experimental-adapter:1.0.0'
