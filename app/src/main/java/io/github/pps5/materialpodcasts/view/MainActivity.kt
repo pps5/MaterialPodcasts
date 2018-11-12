@@ -1,8 +1,9 @@
-package io.github.pps5.materialpodcasts
+package io.github.pps5.materialpodcasts.view
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import io.github.pps5.materialpodcasts.R
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
