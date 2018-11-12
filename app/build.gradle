@@ -28,7 +28,7 @@ dependencies {
         lifecycle_version = '1.1.1'
         room_version = "1.1.1"
         koin_version = '1.0.1'
-        coroutines_version = '0.24.0'
+        coroutines_version = '1.0.0'
         okhttp_version = "3.11.0"
         retrofit_version = "2.4.0"
         moshi_version = "1.6.0"
@@ -79,8 +79,3 @@ dependencies {
 
 }
 
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
