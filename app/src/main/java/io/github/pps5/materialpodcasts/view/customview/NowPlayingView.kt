@@ -29,18 +29,21 @@ class NowPlayingView : FrameLayout, ContextExtension {
         override fun onStateChanged(newState: Int) {
             val control = if (viewModel.isPlaying) binding.controlPause else binding.controlPlay
             when {
-                newState == STATE_EXPANDED -> showWithAnimation(binding.sheetClose)
-                newState == STATE_COLLAPSED -> showWithAnimation(control)
+                newState == STATE_EXPANDED -> showWithAnimation(binding.sheetClose, false)
+                newState == STATE_COLLAPSED -> showWithAnimation(control, true)
                 binding.sheetClose.visibility == VISIBLE -> hideWithAnimation(binding.sheetClose)
                 control.visibility == VISIBLE -> hideWithAnimation(control)
             }
         }
 
-        private fun showWithAnimation(view: View) {
+        private fun showWithAnimation(view: View, isNowPlayingAreaClickable: Boolean) {
             view.clearAnimation()
             view.animate().setDuration(300L)
                     .alpha(1f)
-                    .withStartAction { view.visibility = VISIBLE }
+                    .withStartAction {
+                        view.visibility = VISIBLE
+                        binding.nowPlayingArea.isClickable = isNowPlayingAreaClickable
+                    }
                     .withEndAction { view.isClickable = true }
                     .start()
         }
@@ -68,6 +71,8 @@ class NowPlayingView : FrameLayout, ContextExtension {
     fun initialize(callbackMediator: CallbackMediator,
                    binding: BottomSheetBinding, viewModel: BottomSheetViewModel) {
         this.binding = binding
+        this.binding.sheetClose.setOnClickListener { bottomSheetBehavior.state = STATE_COLLAPSED }
+        this.binding.nowPlayingArea.setOnClickListener { bottomSheetBehavior.state = STATE_EXPANDED }
         this.viewModel = viewModel
         if (this.callbackMediator == null) {
             callbackMediator.setNowPlayingSheetCallback(sheetCallback)
