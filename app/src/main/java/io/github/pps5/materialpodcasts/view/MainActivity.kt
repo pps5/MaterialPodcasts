@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ActivityMainBinding
 import io.github.pps5.materialpodcasts.view.customview.NowPlayingView
+import io.github.pps5.materialpodcasts.view.viewmodel.BottomSheetViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,10 +21,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         val callbackMediator = NowPlayingView.CallbackMediator()
-        binding.nowplaying.bottomSheet.setCallbackMediator(callbackMediator)
         binding.navigation.let {
             it.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
             it.setCallbackMediator(callbackMediator)
         }
+        initializeBottomSheet(callbackMediator)
+    }
+
+    private fun initializeBottomSheet(callbackMediator: NowPlayingView.CallbackMediator) {
+        val bottomSheetViewModel = BottomSheetViewModel()
+        binding.nowplaying.setLifecycleOwner(this)
+        binding.nowplaying.bottomSheet.initialize(callbackMediator = callbackMediator,
+                binding = binding.nowplaying, viewModel = bottomSheetViewModel)
     }
 }

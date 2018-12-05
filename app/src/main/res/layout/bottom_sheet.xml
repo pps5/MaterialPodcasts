@@ -12,11 +12,43 @@
         app:behavior_peekHeight="0dp"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
-        <TextView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorAccent"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white">
+
+            <ImageView
+                android:id="@+id/sheet_close"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_close_black_32dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/control_play"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_play_arrow_black_32dp"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/control_pause"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_pause_black_32dp"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
         <TextView
             android:layout_width="match_parent"
