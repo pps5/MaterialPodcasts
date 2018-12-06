@@ -5,6 +5,8 @@ import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
 import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
 import android.util.AttributeSet
+import android.view.KeyEvent.ACTION_UP
+import android.view.KeyEvent.KEYCODE_BACK
 import android.view.View
 import android.widget.FrameLayout
 import io.github.pps5.materialpodcasts.databinding.BottomSheetBinding
@@ -19,9 +21,11 @@ class NowPlayingView : FrameLayout, ContextExtension {
 
     private lateinit var binding: BottomSheetBinding
     private lateinit var viewModel: BottomSheetViewModel
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private var isBackKeyEnabled = true
     private var callbackMediator: CallbackMediator? = null
 
-    private val sheetCallback: CallbackMediator.Callback = object: CallbackMediator.Callback {
+    private val sheetCallback: CallbackMediator.Callback = object : CallbackMediator.Callback {
         override fun onSlide(slideOffset: Float) {
             // no-op
         }
@@ -29,23 +33,21 @@ class NowPlayingView : FrameLayout, ContextExtension {
         override fun onStateChanged(newState: Int) {
             val control = if (viewModel.isPlaying) binding.controlPause else binding.controlPlay
             when {
-                newState == STATE_EXPANDED -> showWithAnimation(binding.sheetClose, false)
-                newState == STATE_COLLAPSED -> showWithAnimation(control, true)
+                newState == STATE_EXPANDED -> showWithAnimation(binding.sheetClose)
+                newState == STATE_COLLAPSED -> showWithAnimation(control)
                 binding.sheetClose.visibility == VISIBLE -> hideWithAnimation(binding.sheetClose)
                 control.visibility == VISIBLE -> hideWithAnimation(control)
             }
         }
 
-        private fun showWithAnimation(view: View, isNowPlayingAreaClickable: Boolean) {
+        private fun showWithAnimation(view: View) {
             view.clearAnimation()
             view.animate().setDuration(300L)
                     .alpha(1f)
-                    .withStartAction {
-                        view.visibility = VISIBLE
-                        binding.nowPlayingArea.isClickable = isNowPlayingAreaClickable
-                    }
+                    .withStartAction { view.visibility = VISIBLE }
                     .withEndAction { view.isClickable = true }
                     .start()
+            isBackKeyEnabled = true
         }
 
         private fun hideWithAnimation(view: View) {
@@ -54,9 +56,9 @@ class NowPlayingView : FrameLayout, ContextExtension {
                     .withStartAction { view.isClickable = false }
                     .withEndAction { view.visibility = GONE }
                     .start()
+            isBackKeyEnabled = false
         }
     }
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -71,14 +73,30 @@ class NowPlayingView : FrameLayout, ContextExtension {
     fun initialize(callbackMediator: CallbackMediator,
                    binding: BottomSheetBinding, viewModel: BottomSheetViewModel) {
         this.binding = binding
-        this.binding.sheetClose.setOnClickListener { bottomSheetBehavior.state = STATE_COLLAPSED }
-        this.binding.nowPlayingArea.setOnClickListener { bottomSheetBehavior.state = STATE_EXPANDED }
         this.viewModel = viewModel
         if (this.callbackMediator == null) {
             callbackMediator.setNowPlayingSheetCallback(sheetCallback)
             this.callbackMediator = callbackMediator
             bottomSheetBehavior.setBottomSheetCallback(callbackMediator.bottomSheetCallback)
         }
+        setListeners()
+    }
+
+    private fun setListeners() {
+        binding.bottomSheet.let {
+            it.isFocusableInTouchMode = true
+            it.setOnKeyListener { _, keyCode, keyEvent ->
+                val isPressedBackKey = (keyCode == KEYCODE_BACK) && (keyEvent.action == ACTION_UP)
+                if (isPressedBackKey && bottomSheetBehavior.state == STATE_EXPANDED) {
+                    bottomSheetBehavior.state = STATE_COLLAPSED
+                    isBackKeyEnabled = false
+                    return@setOnKeyListener true
+                }
+                return@setOnKeyListener !isBackKeyEnabled
+            }
+        }
+        binding.sheetClose.setOnClickListener { bottomSheetBehavior.state = STATE_COLLAPSED }
+        binding.nowPlayingArea.setOnClickListener { bottomSheetBehavior.state = STATE_EXPANDED }
     }
 
     /**
