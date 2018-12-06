@@ -9,7 +9,7 @@ import android.view.KeyEvent.ACTION_UP
 import android.view.KeyEvent.KEYCODE_BACK
 import android.view.View
 import android.widget.FrameLayout
-import io.github.pps5.materialpodcasts.databinding.BottomSheetBinding
+import io.github.pps5.materialpodcasts.databinding.NowPlayingSheetBinding
 import io.github.pps5.materialpodcasts.extension.ContextExtension
 import io.github.pps5.materialpodcasts.view.viewmodel.BottomSheetViewModel
 
@@ -19,7 +19,7 @@ class NowPlayingSheet : FrameLayout, ContextExtension {
         private val TAG = NowPlayingSheet::class.java.simpleName
     }
 
-    private lateinit var binding: BottomSheetBinding
+    private lateinit var binding: NowPlayingSheetBinding
     private lateinit var viewModel: BottomSheetViewModel
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private var isBackKeyEnabled = true
@@ -71,7 +71,7 @@ class NowPlayingSheet : FrameLayout, ContextExtension {
     }
 
     fun initialize(callbackMediator: CallbackMediator,
-                   binding: BottomSheetBinding, viewModel: BottomSheetViewModel) {
+                   binding: NowPlayingSheetBinding, viewModel: BottomSheetViewModel) {
         this.binding = binding
         this.viewModel = viewModel
         if (this.callbackMediator == null) {
