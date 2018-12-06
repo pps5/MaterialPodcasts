@@ -22,7 +22,7 @@ class BottomNavigation : BottomNavigationView, ContextExtension {
     }
 
     private var oldState = BottomSheetBehavior.STATE_COLLAPSED
-    private var callbackMediator: NowPlayingView.CallbackMediator? = null
+    private var callbackMediator: NowPlayingSheet.CallbackMediator? = null
     private var isCompleteInitialLayout = false
 
     private val onGlobalLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -53,7 +53,7 @@ class BottomNavigation : BottomNavigationView, ContextExtension {
         }
     }
 
-    fun setCallbackMediator(mediator: NowPlayingView.CallbackMediator) {
+    fun setCallbackMediator(mediator: NowPlayingSheet.CallbackMediator) {
         if (callbackMediator == null && !isCompleteInitialLayout) {
             callbackMediator = mediator
             initializeCallback()
@@ -73,7 +73,7 @@ class BottomNavigation : BottomNavigationView, ContextExtension {
         }
 
         Log.d(TAG, "Initialize callback: originalTop -> $originalTop")
-        callbackMediator?.setBottomNavCallback(object : NowPlayingView.CallbackMediator.Callback {
+        callbackMediator?.setBottomNavCallback(object : NowPlayingSheet.CallbackMediator.Callback {
             override fun onSlide(slideOffset: Float) {
                 this@BottomNavigation.y = originalTop + (originalHeight * slideOffset)
             }

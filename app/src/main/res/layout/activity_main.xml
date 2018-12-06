@@ -17,7 +17,7 @@
 
         <include
             android:id="@+id/nowplaying"
-            layout="@layout/bottom_sheet" />
+            layout="@layout/now_playing_sheet" />
 
         <io.github.pps5.materialpodcasts.view.customview.BottomNavigation
             android:id="@+id/navigation"

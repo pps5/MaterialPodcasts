@@ -13,10 +13,10 @@ import io.github.pps5.materialpodcasts.databinding.BottomSheetBinding
 import io.github.pps5.materialpodcasts.extension.ContextExtension
 import io.github.pps5.materialpodcasts.view.viewmodel.BottomSheetViewModel
 
-class NowPlayingView : FrameLayout, ContextExtension {
+class NowPlayingSheet : FrameLayout, ContextExtension {
 
     companion object {
-        private val TAG = NowPlayingView::class.java.simpleName
+        private val TAG = NowPlayingSheet::class.java.simpleName
     }
 
     private lateinit var binding: BottomSheetBinding
@@ -83,7 +83,7 @@ class NowPlayingView : FrameLayout, ContextExtension {
     }
 
     private fun setListeners() {
-        binding.bottomSheet.let {
+        binding.nowPlayingSheet.let {
             it.isFocusableInTouchMode = true
             it.setOnKeyListener { _, keyCode, keyEvent ->
                 val isPressedBackKey = (keyCode == KEYCODE_BACK) && (keyEvent.action == ACTION_UP)
@@ -105,16 +105,16 @@ class NowPlayingView : FrameLayout, ContextExtension {
     class CallbackMediator {
 
         private var bottomNavCallback: Callback? = null
-        private var nowPlayingCallback: Callback? = null
+        private var nowPlayingSheetCallback: Callback? = null
 
         val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                nowPlayingCallback?.onSlide(slideOffset)
+                nowPlayingSheetCallback?.onSlide(slideOffset)
                 bottomNavCallback?.onSlide(slideOffset)
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                nowPlayingCallback?.onStateChanged(newState)
+                nowPlayingSheetCallback?.onStateChanged(newState)
                 bottomNavCallback?.onStateChanged(newState)
             }
         }
@@ -124,7 +124,7 @@ class NowPlayingView : FrameLayout, ContextExtension {
         }
 
         fun setNowPlayingSheetCallback(callback: Callback) {
-            nowPlayingCallback = callback
+            nowPlayingSheetCallback = callback
         }
 
         interface Callback {

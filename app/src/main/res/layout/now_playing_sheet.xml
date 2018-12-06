@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
 
-    <io.github.pps5.materialpodcasts.view.customview.NowPlayingView xmlns:android="http://schemas.android.com/apk/res/android"
+    <io.github.pps5.materialpodcasts.view.customview.NowPlayingSheet xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/bottom_sheet"
+        android:id="@+id/now_playing_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
@@ -56,5 +56,5 @@
             android:layout_height="wrap_content"
             android:textColor="@android:color/white" />
 
-    </io.github.pps5.materialpodcasts.view.customview.NowPlayingView>
+    </io.github.pps5.materialpodcasts.view.customview.NowPlayingSheet>
 </layout>
