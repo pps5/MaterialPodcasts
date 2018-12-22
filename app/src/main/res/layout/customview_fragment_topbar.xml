@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="io.github.pps5.materialpodcasts.view.customview.FragmentTopBar.TopBarViewModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="0dp"
+        app:elevation="0dp">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/top_bar_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="5dp"
+                android:src="@drawable/ic_arrow_back_black_24dp"
+                android:visibility="@{viewModel.shouldShowNavigateUp ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/top_bar_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/search_bar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_medium"
+                android:visibility="@{viewModel.shouldShowSearchBar ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/top_bar_back"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="gone">
+
+                <EditText
+                    android:id="@+id/search_edit_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:cursorVisible="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical"
+                    android:hint="@string/search_hint"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textSize="@dimen/font_size_edit_text"
+                    android:theme="@style/SearchEditText"
+                    app:layout_constraintEnd_toStartOf="@id/button_delete_all"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageView
+                    android:id="@+id/button_delete_all"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="@dimen/margin_medium"
+                    android:layout_marginEnd="@dimen/margin_medium"
+                    android:contentDescription="@string/text_delete_all"
+                    android:src="@drawable/ic_close_black_32dp"
+                    android:tint="@color/black"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/search_edit_text"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/top_bar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:gravity="center_vertical"
+                android:text="@{viewModel.title}"
+                android:textColor="@color/black"
+                android:visibility="@{viewModel.title == null ? View.GONE : View.VISIBLE}"
+                app:layout_constraintBottom_toBottomOf="@id/top_bar_back"
+                app:layout_constraintStart_toEndOf="@id/top_bar_back"
+                app:layout_constraintTop_toTopOf="@id/top_bar_back"
+                app:layout_goneMarginStart="@dimen/margin_medium"
+                app:layout_goneMarginTop="@dimen/margin_top_gone"
+                app:textSize="@{viewModel.topBarTitleTextSize}"
+                tools:text="Home"
+                tools:visibility="visible" />
+        </android.support.constraint.ConstraintLayout>
+    </android.support.design.widget.AppBarLayout>
+</layout>

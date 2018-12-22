@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FragmentTopBar">
+        <attr name="topBarTitle" format="string" />
+        <attr name="showNavigateUp" format="boolean" />
+        <attr name="searchBarEnabled" format="boolean" />
+    </declare-styleable>
+</resources>

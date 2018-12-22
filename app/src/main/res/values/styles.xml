@@ -8,4 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SearchEditText" parent="Base.Widget.AppCompat.EditText">
+        <item name="android:colorControlNormal">@android:color/transparent</item>
+        <item name="android:colorControlActivated">@android:color/transparent</item>
+        <item name="android:textCursorDrawable">@drawable/edit_cursor</item>
+        <item name="android:colorControlHighlight">@android:color/transparent</item>
+    </style>
 </resources>

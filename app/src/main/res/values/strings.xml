@@ -3,4 +3,8 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <!-- FragmentTopBar -->
+    <string name="search_hint">ポッドキャストを検索</string>
+    <string name="text_delete_all">入力中のテキストを削除</string>
 </resources>

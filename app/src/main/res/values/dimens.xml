@@ -3,4 +3,13 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="margin_medium">16dp</dimen>
+    <dimen name="margin_large">32dp</dimen>
+
+    <!-- FragmentTopBar -->
+    <dimen name="app_bar_elevation">4dp</dimen>
+    <dimen name="font_size_title">28sp</dimen>
+    <dimen name="font_size_title_with_navigation">20sp</dimen>
+    <dimen name="font_size_edit_text">16sp</dimen>
+    <dimen name="margin_top_gone">24dp</dimen>
+
 </resources>
