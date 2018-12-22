@@ -26,6 +26,7 @@ class FragmentTopBar : AppBarLayout {
 
     private val elevationInPx: Float by lazy { ELEVATION_IN_DP * context.resources.displayMetrics.density }
     private lateinit var binding: CustomviewFragmentTopbarBinding
+    var searchBarEnterAction: (() -> Unit)? = null
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -53,6 +54,7 @@ class FragmentTopBar : AppBarLayout {
                 it.setOnKeyListener { v, keyCode, event ->
                     if (event.action == ACTION_DOWN && keyCode == KEYCODE_ENTER) {
                         imm.hideSoftInputFromWindow(v.windowToken, RESULT_UNCHANGED_SHOWN)
+                        searchBarEnterAction?.invoke()
                         return@setOnKeyListener true
                     }
                     return@setOnKeyListener false
