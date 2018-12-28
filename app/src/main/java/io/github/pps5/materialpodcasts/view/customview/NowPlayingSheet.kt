@@ -1,19 +1,24 @@
 package io.github.pps5.materialpodcasts.view.customview
 
 import android.content.Context
-import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
-import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
+import android.databinding.DataBindingUtil
 import android.util.AttributeSet
 import android.view.KeyEvent.ACTION_UP
 import android.view.KeyEvent.KEYCODE_BACK
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import com.sothree.slidinguppanel.SlidingUpPanelLayout
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState.COLLAPSED
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState.EXPANDED
+import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.NowPlayingSheetBinding
-import io.github.pps5.materialpodcasts.extension.ContextExtension
+import io.github.pps5.materialpodcasts.view.SheetCallbackMediator
 import io.github.pps5.materialpodcasts.view.viewmodel.BottomSheetViewModel
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-class NowPlayingSheet : FrameLayout, ContextExtension {
+class NowPlayingSheet : FrameLayout, KoinComponent {
 
     companion object {
         private val TAG = NowPlayingSheet::class.java.simpleName
@@ -21,20 +26,21 @@ class NowPlayingSheet : FrameLayout, ContextExtension {
 
     private lateinit var binding: NowPlayingSheetBinding
     private lateinit var viewModel: BottomSheetViewModel
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private var panelState = COLLAPSED
     private var isBackKeyEnabled = true
-    private var callbackMediator: CallbackMediator? = null
+    private val callbackMediator: SheetCallbackMediator by inject()
 
-    private val sheetCallback: CallbackMediator.Callback = object : CallbackMediator.Callback {
+    private val sheetCallback: SheetCallbackMediator.Callback = object : SheetCallbackMediator.Callback {
         override fun onSlide(slideOffset: Float) {
             // no-op
         }
 
-        override fun onStateChanged(newState: Int) {
+        override fun onStateChanged(newState: SlidingUpPanelLayout.PanelState) {
+            panelState = newState
             val control = if (viewModel.isPlaying) binding.controlPause else binding.controlPlay
             when {
-                newState == STATE_EXPANDED -> showWithAnimation(binding.sheetClose)
-                newState == STATE_COLLAPSED -> showWithAnimation(control)
+                newState == EXPANDED -> showWithAnimation(binding.sheetClose)
+                newState == COLLAPSED -> showWithAnimation(control)
                 binding.sheetClose.visibility == VISIBLE -> hideWithAnimation(binding.sheetClose)
                 control.visibility == VISIBLE -> hideWithAnimation(control)
             }
@@ -61,75 +67,26 @@ class NowPlayingSheet : FrameLayout, ContextExtension {
     }
 
     constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-        bottomSheetBehavior = BottomSheetBehavior.from(this)
-        bottomSheetBehavior.peekHeight = context.getBottomNavigationHeight() + context.getActionBarSize()
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.now_playing_sheet, this, true)
+        callbackMediator.setNowPlayingSheetCallback(sheetCallback)
     }
 
-    fun initialize(callbackMediator: CallbackMediator,
-                   binding: NowPlayingSheetBinding, viewModel: BottomSheetViewModel) {
-        this.binding = binding
+    fun initialize(slidingUpPanelLayout: SlidingUpPanelLayout, viewModel: BottomSheetViewModel) {
         this.viewModel = viewModel
-        if (this.callbackMediator == null) {
-            callbackMediator.setNowPlayingSheetCallback(sheetCallback)
-            this.callbackMediator = callbackMediator
-            bottomSheetBehavior.setBottomSheetCallback(callbackMediator.bottomSheetCallback)
-        }
-        setListeners()
-    }
-
-    private fun setListeners() {
-        binding.nowPlayingSheet.let {
+        binding.root.let {
             it.isFocusableInTouchMode = true
-            it.setOnKeyListener { _, keyCode, keyEvent ->
-                val isPressedBackKey = (keyCode == KEYCODE_BACK) && (keyEvent.action == ACTION_UP)
-                if (isPressedBackKey && bottomSheetBehavior.state == STATE_EXPANDED) {
-                    bottomSheetBehavior.state = STATE_COLLAPSED
+            it.setOnKeyListener { _, keyCode, event ->
+                val isPressedBackKey = (keyCode == KEYCODE_BACK) && (event.action == ACTION_UP)
+                if (isPressedBackKey && panelState == EXPANDED) {
+                    slidingUpPanelLayout.panelState = COLLAPSED
                     isBackKeyEnabled = false
                     return@setOnKeyListener true
                 }
                 return@setOnKeyListener !isBackKeyEnabled
             }
         }
-        binding.sheetClose.setOnClickListener { bottomSheetBehavior.state = STATE_COLLAPSED }
-        binding.nowPlayingArea.setOnClickListener { bottomSheetBehavior.state = STATE_EXPANDED }
-    }
-
-    /**
-     * Mediate between original BottomSheetCallback and the other view callbacks
-     */
-    class CallbackMediator {
-
-        private var bottomNavCallback: Callback? = null
-        private var nowPlayingSheetCallback: Callback? = null
-
-        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                nowPlayingSheetCallback?.onSlide(slideOffset)
-                bottomNavCallback?.onSlide(slideOffset)
-            }
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                nowPlayingSheetCallback?.onStateChanged(newState)
-                bottomNavCallback?.onStateChanged(newState)
-            }
-        }
-
-        fun setBottomNavCallback(callback: Callback) {
-            bottomNavCallback = callback
-        }
-
-        fun setNowPlayingSheetCallback(callback: Callback) {
-            nowPlayingSheetCallback = callback
-        }
-
-        interface Callback {
-            fun onSlide(slideOffset: Float)
-            fun onStateChanged(newState: Int)
-        }
+        binding.sheetClose.setOnClickListener { slidingUpPanelLayout.panelState = COLLAPSED }
     }
 }

@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
 
-    <io.github.pps5.materialpodcasts.view.customview.NowPlayingSheet xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/now_playing_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
         android:orientation="vertical"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="0dp"
-        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+        app:behavior_peekHeight="0dp">
 
         <FrameLayout
             android:id="@+id/now_playing_area"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="@dimen/bottom_navigation_height"
             android:background="@color/colorAccent"
             android:textColor="@android:color/white">
 
@@ -56,5 +54,5 @@
             android:layout_height="wrap_content"
             android:textColor="@android:color/white" />
 
-    </io.github.pps5.materialpodcasts.view.customview.NowPlayingSheet>
+    </FrameLayout>
 </layout>

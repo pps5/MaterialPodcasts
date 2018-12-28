@@ -1,29 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/base_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.MainActivity">
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/container"
+        <com.sothree.slidinguppanel.SlidingUpPanelLayout
+            android:id="@+id/sliding_up_panel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            app:umanoPanelHeight="@dimen/bottom_panel_height">
 
-        <include
-            android:id="@+id/nowplaying"
-            layout="@layout/now_playing_sheet" />
+            <android.support.design.widget.CoordinatorLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".view.MainActivity">
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/colorPrimary" />
+            </android.support.design.widget.CoordinatorLayout>
+
+            <io.github.pps5.materialpodcasts.view.customview.NowPlayingSheet
+                android:id="@+id/now_playing_sheet"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
         <io.github.pps5.materialpodcasts.view.customview.BottomNavigation
             android:id="@+id/navigation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/bottom_navigation_height"
             android:layout_gravity="bottom"
             android:background="?android:attr/windowBackground"
             app:menu="@menu/navigation" />
 
+        <FrameLayout
+            android:id="@+id/overlay_container"
+            android:elevation="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </android.support.design.widget.CoordinatorLayout>
 </layout>
