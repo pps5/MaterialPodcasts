@@ -27,6 +27,7 @@ class FragmentTopBar : AppBarLayout {
     private val elevationInPx: Float by lazy { ELEVATION_IN_DP * context.resources.displayMetrics.density }
     private lateinit var binding: CustomviewFragmentTopbarBinding
     var searchBarEnterAction: (() -> Unit)? = null
+    var onClickNavigateUp: (() -> Unit)? = null
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -46,22 +47,27 @@ class FragmentTopBar : AppBarLayout {
         )
         binding.viewModel = viewModel
         if (viewModel.shouldShowSearchBar) {
-            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            binding.searchEditText.let {
-                it.requestFocus()
-                it.post { imm.showSoftInput(it, 0) }
-                it.addTextChangedListener(searchBarWatcher)
-                it.setOnKeyListener { v, keyCode, event ->
-                    if (event.action == ACTION_DOWN && keyCode == KEYCODE_ENTER) {
-                        imm.hideSoftInputFromWindow(v.windowToken, RESULT_UNCHANGED_SHOWN)
-                        searchBarEnterAction?.invoke()
-                        return@setOnKeyListener true
-                    }
-                    return@setOnKeyListener false
-                }
-            }
-            binding.buttonDeleteAll.setOnClickListener { binding.searchEditText.editableText.clear() }
+            setUpSearchBar()
         }
+        binding.topBarBack.setOnClickListener { onClickNavigateUp?.invoke() }
+    }
+
+    private fun setUpSearchBar() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        binding.searchEditText.let {
+            it.requestFocus()
+            it.post { imm.showSoftInput(it, 0) }
+            it.addTextChangedListener(searchBarWatcher)
+            it.setOnKeyListener { v, keyCode, event ->
+                if (event.action == ACTION_DOWN && keyCode == KEYCODE_ENTER) {
+                    imm.hideSoftInputFromWindow(v.windowToken, RESULT_UNCHANGED_SHOWN)
+                    searchBarEnterAction?.invoke()
+                    return@setOnKeyListener true
+                }
+                return@setOnKeyListener false
+            }
+        }
+        binding.buttonDeleteAll.setOnClickListener { binding.searchEditText.editableText.clear() }
     }
 
     val scrollChangeListener = NestedScrollView.OnScrollChangeListener { _, _, scrollY: Int, _, _ ->
