@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="io.github.pps5.materialpodcasts.view.customview.FragmentTopBar.TopBarViewModel" />
+            type="io.github.pps5.materialpodcasts.view.viewmodel.TopBarViewModel" />
 
         <import type="android.view.View" />
     </data>

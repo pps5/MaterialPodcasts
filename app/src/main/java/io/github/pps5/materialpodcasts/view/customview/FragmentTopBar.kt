@@ -2,7 +2,6 @@ package io.github.pps5.materialpodcasts.view.customview
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.databinding.BindingAdapter
 import android.databinding.DataBindingUtil
 import android.support.design.widget.AppBarLayout
 import android.support.v4.widget.NestedScrollView
@@ -14,11 +13,13 @@ import android.view.KeyEvent.KEYCODE_ENTER
 import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.RESULT_UNCHANGED_SHOWN
-import android.widget.TextView
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.CustomviewFragmentTopbarBinding
+import io.github.pps5.materialpodcasts.view.viewmodel.TopBarViewModel
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-class FragmentTopBar : AppBarLayout {
+class FragmentTopBar : AppBarLayout, KoinComponent {
 
     companion object {
         private const val ELEVATION_IN_DP = 4
@@ -26,8 +27,14 @@ class FragmentTopBar : AppBarLayout {
 
     private val elevationInPx: Float by lazy { ELEVATION_IN_DP * context.resources.displayMetrics.density }
     private lateinit var binding: CustomviewFragmentTopbarBinding
-    var searchBarEnterAction: (() -> Unit)? = null
+
+    private val viewModel: TopBarViewModel by inject()
+
+    var searchBarEnterAction: ((String) -> Unit)? = null
     var onClickNavigateUp: (() -> Unit)? = null
+    val scrollChangeListener = NestedScrollView.OnScrollChangeListener { _, _, scrollY: Int, _, _ ->
+        this.elevation = if (scrollY > 0) elevationInPx else 0F
+    }
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -40,11 +47,11 @@ class FragmentTopBar : AppBarLayout {
     }
 
     private fun setUpView(typedArray: TypedArray) {
-        val viewModel = TopBarViewModel(
-                title = typedArray.getString(R.styleable.FragmentTopBar_topBarTitle),
-                shouldShowNavigateUp = typedArray.getBoolean(R.styleable.FragmentTopBar_showNavigateUp, false),
-                shouldShowSearchBar = typedArray.getBoolean(R.styleable.FragmentTopBar_searchBarEnabled, false)
-        )
+        viewModel.also {
+            it.title = typedArray.getString(R.styleable.FragmentTopBar_topBarTitle)
+            it.shouldShowNavigateUp = typedArray.getBoolean(R.styleable.FragmentTopBar_showNavigateUp, false)
+            it.shouldShowSearchBar = typedArray.getBoolean(R.styleable.FragmentTopBar_searchBarEnabled, false)
+        }
         binding.viewModel = viewModel
         if (viewModel.shouldShowSearchBar) {
             setUpSearchBar()
@@ -61,17 +68,13 @@ class FragmentTopBar : AppBarLayout {
             it.setOnKeyListener { v, keyCode, event ->
                 if (event.action == ACTION_DOWN && keyCode == KEYCODE_ENTER) {
                     imm.hideSoftInputFromWindow(v.windowToken, RESULT_UNCHANGED_SHOWN)
-                    searchBarEnterAction?.invoke()
+                    searchBarEnterAction?.invoke(binding.searchEditText.text.toString())
                     return@setOnKeyListener true
                 }
                 return@setOnKeyListener false
             }
         }
         binding.buttonDeleteAll.setOnClickListener { binding.searchEditText.editableText.clear() }
-    }
-
-    val scrollChangeListener = NestedScrollView.OnScrollChangeListener { _, _, scrollY: Int, _, _ ->
-        this.elevation = if (scrollY > 0) elevationInPx else 0F
     }
 
     private val searchBarWatcher = object : TextWatcher {
@@ -85,31 +88,6 @@ class FragmentTopBar : AppBarLayout {
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             // no-op
-        }
-    }
-
-    inner class TopBarViewModel(
-            val title: String? = null,
-            val shouldShowNavigateUp: Boolean = false,
-            val shouldShowSearchBar: Boolean = false
-    ) {
-        private val density: Float by lazy { context.resources.displayMetrics.density }
-        val topBarTitleTextSize: Float
-            get() = if (shouldShowNavigateUp) {
-                resources.getDimension(R.dimen.font_size_title_with_navigation) / density
-            } else {
-                resources.getDimension(R.dimen.font_size_title) / density
-            }
-
-        @BindingAdapter("app:textSize")
-        fun TextView.setTitleSize(size: Float) {
-            textSize = size
-        }
-
-        init {
-            if (title != null && shouldShowSearchBar) {
-                throw IllegalArgumentException("Title and search bar cannot show at the same time")
-            }
         }
     }
 }
