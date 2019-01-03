@@ -3,7 +3,6 @@ package io.github.pps5.materialpodcasts.view.viewmodel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import android.util.Log
 import io.github.pps5.materialpodcasts.extension.switchMap
 import io.github.pps5.materialpodcasts.model.ITunesResponse
 import io.github.pps5.materialpodcasts.repository.SearchRepository
@@ -26,27 +25,29 @@ class SearchViewModel : ViewModel(), SearchBarListener, KoinComponent {
     private val executor = Executors.newScheduledThreadPool(1)
     private var future: Future<*>? = null
 
+    val shouldShowNoResults = MutableLiveData<Boolean>()
     private val query = MutableLiveData<String>()
     val podcasts: LiveData<Resource<ITunesResponse>> = query.switchMap(repository::search)
 
     fun cancel() = future?.cancel(true)
 
     private fun setQuery(value: String) {
-        Log.d(TAG, "setQuery called")
+        shouldShowNoResults.postValue(false)
         cancel()
-        if (value.isNotEmpty() && value != query.value) {
-            future = executor.schedule({ query.postValue(value) }, SEARCH_DELAY, TimeUnit.SECONDS)
+        if (value != query.value) {
+            future = executor.schedule({ query.postValue(value) }, SEARCH_DELAY, TimeUnit.MILLISECONDS)
         }
     }
 
     private fun setQueryImmediately(value: String) {
-        Log.d(TAG, "setQueryImmediately called")
+        shouldShowNoResults.postValue(false)
         cancel()
-        if (value.isNotEmpty() && value != query.value) {
+        if (value != query.value) {
             query.postValue(value)
         }
     }
 
     override fun onEnterSearchBar(text: String) = setQueryImmediately(text)
     override fun afterTextChanged(text: String) = setQuery(text)
+    override fun onDeleteQuery() = setQueryImmediately("")
 }

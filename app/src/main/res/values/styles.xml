@@ -14,4 +14,10 @@
         <item name="android:textCursorDrawable">@drawable/edit_cursor</item>
         <item name="android:colorControlHighlight">@android:color/transparent</item>
     </style>
+
+    <style name="SingleLineTextView">
+        <item name="android:lines">1</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 </resources>

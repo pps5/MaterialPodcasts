@@ -16,14 +16,11 @@ class SearchRepository(private val itunesService: ITunesService) {
     fun search(query: String): LiveData<Resource<ITunesResponse>> {
         cancel()
         val result = MutableLiveData<Resource<ITunesResponse>>().also { it.postValue(Resource.loading()) }
-        if (query.isEmpty()) {
-            return result.also {
-                it.postValue(Resource.success(ITunesResponse(resultCount = 0, results = arrayOf())))
+        if (query.isNotEmpty()) {
+            job = GlobalScope.launch {
+                val response = itunesService.search(query = query).await()
+                result.postValue(Resource.success(response))
             }
-        }
-        job = GlobalScope.launch {
-            val response = itunesService.search(query = query).await()
-            result.postValue(Resource.success(response))
         }
         return result
     }

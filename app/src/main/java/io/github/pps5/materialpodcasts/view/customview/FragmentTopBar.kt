@@ -4,7 +4,8 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.databinding.DataBindingUtil
 import android.support.design.widget.AppBarLayout
-import android.support.v4.widget.NestedScrollView
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -32,8 +33,13 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
 
     var searchBarListener: SearchBarListener? = null
     var onClickNavigateUp: (() -> Unit)? = null
-    val scrollChangeListener = NestedScrollView.OnScrollChangeListener { _, _, scrollY: Int, _, _ ->
-        this.elevation = if (scrollY > 0) elevationInPx else 0F
+    val scrollChangeListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            val m = recyclerView.layoutManager
+            if (m is LinearLayoutManager) {
+                elevation = if (m.findFirstCompletelyVisibleItemPosition() == 0) 0F else elevationInPx
+            }
+        }
     }
 
     constructor(context: Context) : super(context)
@@ -79,22 +85,23 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
 
     private val searchBarWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
-            binding.buttonDeleteAll.visibility = if (s?.length ?: 0 == 0) GONE else VISIBLE
-            searchBarListener?.afterTextChanged(s!!.toString())
+            if (s.isNullOrEmpty()) {
+                binding.buttonDeleteAll.visibility = GONE
+                searchBarListener?.onDeleteQuery()
+            } else {
+                binding.buttonDeleteAll.visibility = VISIBLE
+                searchBarListener?.afterTextChanged(s!!.toString())
+            }
         }
 
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            // no-op
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            // no-op
-        }
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
     }
 
     interface SearchBarListener {
         fun onEnterSearchBar(text: String)
         fun afterTextChanged(text: String)
+        fun onDeleteQuery()
     }
 }
 

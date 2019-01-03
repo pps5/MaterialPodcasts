@@ -7,4 +7,6 @@
     <!-- basic colors -->
     <color name="black">#DD000000</color>
     <color name="white">#FFFFFF</color>
+
+    <color name="card_ripple_foreground">#d1d1d1</color>
 </resources>
