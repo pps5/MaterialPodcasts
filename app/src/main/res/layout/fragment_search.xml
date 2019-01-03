@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="io.github.pps5.materialpodcasts.view.viewmodel.SearchViewModel" />
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:clickable="true"
+        android:focusable="true">
+
+        <io.github.pps5.materialpodcasts.view.customview.FragmentTopBar
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:elevation="0dp"
+            app:searchBarEnabled="true"
+            app:showNavigateUp="true"
+            bind:searchBarListener="@{viewModel}" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        </android.support.v4.widget.NestedScrollView>
+
+        <android.support.v4.widget.ContentLoadingProgressBar
+            android:id="@+id/progress_bar"
+            style="@android:style/Widget.Material.Light.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+    </android.support.design.widget.CoordinatorLayout>
+</layout>

@@ -1,7 +1,7 @@
 package io.github.pps5.materialpodcasts.di
 
 import android.util.Log
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import io.github.pps5.materialpodcasts.data.FeedsService
 import io.github.pps5.materialpodcasts.data.ITunesService

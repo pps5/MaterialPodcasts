@@ -30,7 +30,7 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
 
     private val viewModel: TopBarViewModel by inject()
 
-    var searchBarEnterAction: ((String) -> Unit)? = null
+    var searchBarListener: SearchBarListener? = null
     var onClickNavigateUp: (() -> Unit)? = null
     val scrollChangeListener = NestedScrollView.OnScrollChangeListener { _, _, scrollY: Int, _, _ ->
         this.elevation = if (scrollY > 0) elevationInPx else 0F
@@ -68,7 +68,7 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
             it.setOnKeyListener { v, keyCode, event ->
                 if (event.action == ACTION_DOWN && keyCode == KEYCODE_ENTER) {
                     imm.hideSoftInputFromWindow(v.windowToken, RESULT_UNCHANGED_SHOWN)
-                    searchBarEnterAction?.invoke(binding.searchEditText.text.toString())
+                    searchBarListener?.onEnterSearchBar(binding.searchEditText.text.toString())
                     return@setOnKeyListener true
                 }
                 return@setOnKeyListener false
@@ -80,6 +80,7 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
     private val searchBarWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             binding.buttonDeleteAll.visibility = if (s?.length ?: 0 == 0) GONE else VISIBLE
+            searchBarListener?.afterTextChanged(s!!.toString())
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -89,6 +90,11 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             // no-op
         }
+    }
+
+    interface SearchBarListener {
+        fun onEnterSearchBar(text: String)
+        fun afterTextChanged(text: String)
     }
 }
 
