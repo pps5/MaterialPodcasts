@@ -31,23 +31,19 @@ class SearchViewModel : ViewModel(), SearchBarListener, KoinComponent {
 
     fun cancel() = future?.cancel(true)
 
-    private fun setQuery(value: String) {
+    private fun setQuery(value: String, immediately: Boolean) {
         shouldShowNoResults.postValue(false)
         cancel()
         if (value != query.value) {
-            future = executor.schedule({ query.postValue(value) }, SEARCH_DELAY, TimeUnit.MILLISECONDS)
+            if (immediately) {
+                query.postValue(value)
+            } else {
+                future = executor.schedule({ query.postValue(value) }, SEARCH_DELAY, TimeUnit.MILLISECONDS)
+            }
         }
     }
 
-    private fun setQueryImmediately(value: String) {
-        shouldShowNoResults.postValue(false)
-        cancel()
-        if (value != query.value) {
-            query.postValue(value)
-        }
-    }
-
-    override fun onEnterSearchBar(text: String) = setQueryImmediately(text)
-    override fun afterTextChanged(text: String) = setQuery(text)
-    override fun onDeleteQuery() = setQueryImmediately("")
+    override fun onEnterSearchBar(text: String) = setQuery(text, true)
+    override fun afterTextChanged(text: String) = setQuery(text, false)
+    override fun onDeleteQuery() = setQuery("", true)
 }
