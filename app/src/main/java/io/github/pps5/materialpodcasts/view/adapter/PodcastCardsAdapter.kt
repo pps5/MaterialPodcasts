@@ -14,7 +14,8 @@ import io.github.pps5.materialpodcasts.databinding.PodcastCardLayoutBinding
 import io.github.pps5.materialpodcasts.model.Podcast
 
 class PodcastCardsAdapter(
-        private val podcasts: List<Podcast>
+        private val podcasts: List<Podcast>,
+        private val selectedListener: PodcastSelectedListener
 ) : RecyclerView.Adapter<PodcastCardsAdapter.ViewHolder>() {
 
     companion object {
@@ -39,13 +40,11 @@ class PodcastCardsAdapter(
     override fun getItemCount() = podcasts.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val podcast = podcasts[position]
-        holder.binding.let {
-            val urls = arrayOf(podcast.artworkUrl100, podcast.artworkUrl60, podcast.artworkUrl30).filterNotNull()
-            getArtwork(urls, it.artwork)
-            it.artwork.contentDescription = podcast.trackName
-            it.title.text = podcast.trackName
-            it.artistName.text = podcast.artistName
+        holder.binding.selectedListener = selectedListener
+        podcasts[position].let {
+            holder.binding.podcast = it
+            val urls =  arrayOf(it.artworkUrl100, it.artworkUrl60, it.artworkUrl30).filterNotNull()
+            getArtwork(urls, holder.binding.artwork)
         }
     }
 
@@ -73,6 +72,10 @@ class PodcastCardsAdapter(
                 urlGenerator()?.let { get(it, this) }
             }
         })
+    }
+
+    interface PodcastSelectedListener {
+        fun onSelectedPodcast(podcast: Podcast)
     }
 
     class ViewHolder(val binding: PodcastCardLayoutBinding) : RecyclerView.ViewHolder(binding.root)

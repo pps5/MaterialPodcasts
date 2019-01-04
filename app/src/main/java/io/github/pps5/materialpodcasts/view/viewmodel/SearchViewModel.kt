@@ -5,7 +5,9 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import io.github.pps5.materialpodcasts.extension.switchMap
 import io.github.pps5.materialpodcasts.model.ITunesResponse
+import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.repository.SearchRepository
+import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter.PodcastSelectedListener
 import io.github.pps5.materialpodcasts.view.customview.FragmentTopBar.SearchBarListener
 import io.github.pps5.materialpodcasts.vo.Resource
 import org.koin.standalone.KoinComponent
@@ -14,7 +16,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
-class SearchViewModel : ViewModel(), SearchBarListener, KoinComponent {
+class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSelectedListener {
 
     companion object {
         private const val SEARCH_DELAY = 1500L
@@ -26,6 +28,9 @@ class SearchViewModel : ViewModel(), SearchBarListener, KoinComponent {
     private var future: Future<*>? = null
 
     val shouldShowNoResults = MutableLiveData<Boolean>()
+    private val _selectedPodcast = MutableLiveData<Podcast>()
+    val selectedPodcast: LiveData<Podcast>
+        get() = _selectedPodcast
     private val query = MutableLiveData<String>()
     val podcasts: LiveData<Resource<ITunesResponse>> = query.switchMap(repository::search)
 
@@ -42,6 +47,8 @@ class SearchViewModel : ViewModel(), SearchBarListener, KoinComponent {
             }
         }
     }
+
+    override fun onSelectedPodcast(podcast: Podcast) = _selectedPodcast.postValue(podcast)
 
     override fun onEnterSearchBar(text: String) = setQuery(text, true)
     override fun afterTextChanged(text: String) = setQuery(text, false)

@@ -3,13 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="podcast"
+            type="io.github.pps5.materialpodcasts.model.Podcast" />
+
+        <variable
+            name="selectedListener"
+            type="io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter.PodcastSelectedListener" />
+    </data>
+
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/card_ripple_effect"
-        android:foreground="@drawable/card_ripple_effect"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:onClick="@{() -> selectedListener.onSelectedPodcast(podcast)}"
+        android:foreground="@drawable/card_ripple_effect">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -20,6 +32,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
+                android:contentDescription="@{podcast.trackName}"
                 app:layout_constraintBottom_toTopOf="@id/podcast_data"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -41,6 +54,7 @@
                     style="@style/SingleLineTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:text="@{podcast.trackName}"
                     android:textSize="14sp"
                     app:layout_constraintBottom_toTopOf="@id/artist_name"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -53,6 +67,7 @@
                     style="@style/SingleLineTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:text="@{podcast.artistName}"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

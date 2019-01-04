@@ -44,16 +44,20 @@ class SearchFragment : Fragment() {
         return binding.root
     }
 
+    private fun observePodcastClick() = viewModel.selectedPodcast.observe(this, Observer {
+
+    })
+
     private fun observeSearchState() = viewModel.podcasts.observe(this, Observer {
         when (it) {
             is Resource.Loading -> { // no-op
             }
-            is Resource.Success ->  {
+            is Resource.Success -> {
                 if (it.value.resultCount == 0) {
-                    binding.content.adapter = PodcastCardsAdapter(listOf())
+                    binding.content.adapter = PodcastCardsAdapter(listOf(), viewModel)
                     binding.notFound.visibility = VISIBLE
                 } else {
-                    binding.content.adapter = PodcastCardsAdapter(it.value.results.toList())
+                    binding.content.adapter = PodcastCardsAdapter(it.value.results.toList(), viewModel)
                     binding.notFound.visibility = GONE
                 }
             }
