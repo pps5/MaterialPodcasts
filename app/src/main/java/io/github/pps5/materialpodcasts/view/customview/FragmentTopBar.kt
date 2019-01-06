@@ -39,6 +39,7 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
             if (m is LinearLayoutManager) {
                 elevation = if (m.findFirstCompletelyVisibleItemPosition() == 0) 0F else elevationInPx
             }
+            viewModel.onScrollChanged(recyclerView.computeVerticalScrollOffset().toFloat())
         }
     }
 
@@ -57,6 +58,7 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
             it.title = typedArray.getString(R.styleable.FragmentTopBar_topBarTitle)
             it.shouldShowNavigateUp = typedArray.getBoolean(R.styleable.FragmentTopBar_showNavigateUp, false)
             it.shouldShowSearchBar = typedArray.getBoolean(R.styleable.FragmentTopBar_searchBarEnabled, false)
+            it.shouldShowTitleOnScroll = typedArray.getBoolean(R.styleable.FragmentTopBar_showTitleOnScroll, false)
         }
         binding.viewModel = viewModel
         if (viewModel.shouldShowSearchBar) {

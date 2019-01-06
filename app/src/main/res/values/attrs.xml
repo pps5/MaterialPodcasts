@@ -4,5 +4,6 @@
         <attr name="topBarTitle" format="string" />
         <attr name="showNavigateUp" format="boolean" />
         <attr name="searchBarEnabled" format="boolean" />
+        <attr name="showTitleOnScroll" format="boolean" />
     </declare-styleable>
 </resources>

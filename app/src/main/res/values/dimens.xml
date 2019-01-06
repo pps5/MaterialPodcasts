@@ -12,6 +12,7 @@
 
     <!-- FragmentTopBar -->
     <dimen name="app_bar_elevation">4dp</dimen>
+    <dimen name="title_alpha_scroll_offset">84dp</dimen>
     <dimen name="font_size_title">28sp</dimen>
     <dimen name="font_size_title_with_navigation">20sp</dimen>
     <dimen name="font_size_edit_text">16sp</dimen>
