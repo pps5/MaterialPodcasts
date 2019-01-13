@@ -33,7 +33,6 @@
             android:src="@drawable/ic_arrow_back_black_24dp"
             android:visibility="@{viewModel.shouldShowNavigateUp ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/top_bar_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,15 +83,18 @@
 
         <TextView
             android:id="@+id/top_bar_title"
-            android:layout_width="wrap_content"
+            style="@style/SingleLineTextView"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_large"
+            android:paddingStart="@dimen/margin_large"
+            android:paddingEnd="@dimen/margin_medium"
             android:alpha="@{viewModel.titleAlpha}"
             android:gravity="center_vertical"
             android:text="@{viewModel.title}"
             android:textColor="@color/black"
             android:visibility="@{viewModel.title == null ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="@id/top_bar_back"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/top_bar_back"
             app:layout_constraintTop_toTopOf="@id/top_bar_back"
             app:layout_goneMarginStart="@dimen/margin_medium"

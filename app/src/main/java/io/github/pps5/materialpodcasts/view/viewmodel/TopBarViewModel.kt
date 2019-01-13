@@ -3,6 +3,7 @@ package io.github.pps5.materialpodcasts.view.viewmodel
 import android.arch.lifecycle.ViewModel
 import android.content.Context
 import android.databinding.BindingAdapter
+import android.databinding.ObservableField
 import android.databinding.ObservableFloat
 import android.widget.TextView
 import io.github.pps5.materialpodcasts.R
@@ -14,7 +15,7 @@ class TopBarViewModel(context: Context) : ViewModel() {
     private val fontSizeWithNavigateUp = context.resources.getDimension(R.dimen.font_size_title_with_navigation)
     private val alphaScrollOffset = context.resources.getDimensionPixelSize(R.dimen.title_alpha_scroll_offset)
 
-    var title: String? = null
+    val title = ObservableField<String>()
     var shouldShowNavigateUp: Boolean = false
     var shouldShowSearchBar: Boolean = false
     var shouldShowTitleOnScroll: Boolean = false

@@ -55,7 +55,7 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
 
     private fun setUpView(typedArray: TypedArray) {
         viewModel.also {
-            it.title = typedArray.getString(R.styleable.FragmentTopBar_topBarTitle)
+            it.title.set(typedArray.getString(R.styleable.FragmentTopBar_topBarTitle))
             it.shouldShowNavigateUp = typedArray.getBoolean(R.styleable.FragmentTopBar_showNavigateUp, false)
             it.shouldShowSearchBar = typedArray.getBoolean(R.styleable.FragmentTopBar_searchBarEnabled, false)
             it.shouldShowTitleOnScroll = typedArray.getBoolean(R.styleable.FragmentTopBar_showTitleOnScroll, false)
@@ -98,6 +98,10 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+    }
+
+    fun setTopBarTitle(title: String) {
+        viewModel.title.set(title)
     }
 
     interface SearchBarListener {
