@@ -9,9 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class SearchRepository(private val itunesService: ITunesService) {
-
-    private var job: Job? = null
+class SearchRepository(private val itunesService: ITunesService): BaseRepository() {
 
     fun search(query: String): LiveData<Resource<ITunesResponse>> {
         cancel()
@@ -25,9 +23,4 @@ class SearchRepository(private val itunesService: ITunesService) {
         return result
     }
 
-    private fun cancel() {
-        if (job?.isCancelled == false) {
-            job?.cancel()
-        }
-    }
 }
