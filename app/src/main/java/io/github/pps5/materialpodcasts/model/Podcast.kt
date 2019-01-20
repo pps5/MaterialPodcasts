@@ -2,6 +2,9 @@ package io.github.pps5.materialpodcasts.model
 
 import java.util.*
 
+val Podcast.artworkBaseUrl
+    get() = artworkUrl30.substringBeforeLast('/')
+
 data class Podcast(
         val wrapperType: String,
         val kind: String,

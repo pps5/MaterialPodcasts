@@ -20,14 +20,14 @@
         android:background="@drawable/card_ripple_effect"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="@{() -> selectedListener.onSelectedPodcast(podcast)}"
-        android:foreground="@drawable/card_ripple_effect">
+        android:foreground="@drawable/card_ripple_effect"
+        android:onClick="@{() -> selectedListener.onSelectedPodcast(podcast)}">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageView
+            <io.github.pps5.materialpodcasts.view.customview.UrlLoadingImageView
                 android:id="@+id/artwork"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
