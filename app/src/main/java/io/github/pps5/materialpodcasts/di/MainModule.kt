@@ -1,6 +1,7 @@
 package io.github.pps5.materialpodcasts.di
 
 import io.github.pps5.materialpodcasts.view.SheetCallbackMediator
+import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import io.github.pps5.materialpodcasts.view.viewmodel.SearchViewModel
 import io.github.pps5.materialpodcasts.view.viewmodel.TopBarViewModel
 
@@ -11,4 +12,7 @@ val mainModule = module {
     single { SheetCallbackMediator() }
     viewModel { TopBarViewModel(get()) }
     viewModel { SearchViewModel() }
+    viewModel { (feedUrl: String, title: String, artistName: String, artworkBaseUrl: String) ->
+        PodcastDetailViewModel(feedUrl, title, artistName, artworkBaseUrl)
+    }
 }

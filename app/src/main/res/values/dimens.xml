@@ -18,4 +18,8 @@
     <dimen name="font_size_edit_text">16sp</dimen>
     <dimen name="margin_top_gone">24dp</dimen>
 
+    <!-- PodcastDetailFragment -->
+    <dimen name="font_size_podcast_title">18sp</dimen>
+    <dimen name="font_size_episode_header">18sp</dimen>
+    <dimen name="track_list_height">64dp</dimen>
 </resources>

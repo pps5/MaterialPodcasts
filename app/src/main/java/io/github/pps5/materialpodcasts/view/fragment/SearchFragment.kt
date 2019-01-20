@@ -2,6 +2,7 @@ package io.github.pps5.materialpodcasts.view.fragment
 
 import android.app.Activity
 import android.arch.lifecycle.Observer
+import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -17,6 +18,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.FragmentSearchBinding
+import io.github.pps5.materialpodcasts.model.artworkBaseUrl
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
 import io.github.pps5.materialpodcasts.view.viewmodel.SearchViewModel
@@ -25,6 +27,10 @@ import org.koin.android.ext.android.inject
 
 class SearchFragment : Fragment() {
 
+    companion object {
+        private val TAG = SearchFragment::class.java.simpleName
+    }
+    private var listener: FragmentInteractionListener? = null
     private lateinit var binding: FragmentSearchBinding
     private val viewModel: SearchViewModel by inject()
 
@@ -41,11 +47,25 @@ class SearchFragment : Fragment() {
             it.content.addItemDecoration(ItemOffsetDecoration(context!!, R.dimen.card_offset))
         }
         observeSearchState()
+        observePodcastClick()
         return binding.root
     }
 
-    private fun observePodcastClick() = viewModel.selectedPodcast.observe(this, Observer {
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context is FragmentInteractionListener) {
+            listener = context
+        }
+    }
 
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
+    }
+
+    private fun observePodcastClick() = viewModel.selectedPodcast.observe(this, Observer {
+        listener?.addDetailFragment(PodcastDetailFragment.newInstance(
+                it!!.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl))
     })
 
     private fun observeSearchState() = viewModel.podcasts.observe(this, Observer {
@@ -57,7 +77,8 @@ class SearchFragment : Fragment() {
                     binding.content.adapter = PodcastCardsAdapter(listOf(), viewModel)
                     binding.notFound.visibility = VISIBLE
                 } else {
-                    binding.content.adapter = PodcastCardsAdapter(it.value.results.toList(), viewModel)
+                    val podcastList = it.value.results.filter { item -> !item.feedUrl.isNullOrEmpty() }
+                    binding.content.adapter = PodcastCardsAdapter(podcastList, viewModel)
                     binding.notFound.visibility = GONE
                 }
             }
@@ -78,5 +99,6 @@ class SearchFragment : Fragment() {
 
     interface FragmentInteractionListener {
         fun removeSearchFragment()
+        fun addDetailFragment(fragment: Fragment)
     }
 }

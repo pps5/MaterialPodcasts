@@ -5,9 +5,11 @@ import android.support.transition.Transition
 import android.support.v4.app.Fragment
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ActivityMainBinding
 import io.github.pps5.materialpodcasts.extension.withTransaction
 import io.github.pps5.materialpodcasts.view.MainActivity
+import io.github.pps5.materialpodcasts.view.fragment.PodcastDetailFragment
 import io.github.pps5.materialpodcasts.view.fragment.SearchFragment
 
 private var currentFragment: Fragment? = null
@@ -18,7 +20,7 @@ interface MainNavigator {
     fun MainActivity.getActivityBinding(): ActivityMainBinding
 
     val MainActivity.isOverlayVisible: Boolean
-        get() = currentOverlayFragment != null
+        get() = supportFragmentManager.findFragmentById(R.id.overlay_container) != null
 
     /**
      * Show overlay search screen if it is NOT VISIBLE; otherwise do nothing
@@ -33,6 +35,22 @@ interface MainNavigator {
                 container.visibility = VISIBLE
                 supportFragmentManager.withTransaction { it.add(container.id, fragment) }
             }
+        }
+    }
+
+    /**
+     * Add new fragment to overlay container
+     */
+    fun MainActivity.addOverlay(fragment: Fragment) {
+        supportFragmentManager.withTransaction { it.add(R.id.overlay_container, fragment).addToBackStack(null) }
+    }
+
+    fun MainActivity.back() {
+        val f = supportFragmentManager.findFragmentById(R.id.overlay_container)
+        if (f is SearchFragment) {
+            hideSearchOverlay()
+        } else {
+            supportFragmentManager.popBackStack()
         }
     }
 

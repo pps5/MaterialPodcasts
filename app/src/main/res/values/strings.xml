@@ -12,4 +12,12 @@
     <!-- SearchFragment -->
     <string name="no_podcast_found">ポッドキャストが見つかりませんでした</string>
     <string name="podcast_loading_error">読み込み中にエラーが発生しました</string>
+
+    <!-- PodcastDetailFragment -->
+    <string name="podcast_artwork">アートワーク</string>
+    <string name="episode_header">エピソード一覧</string>
+    <string name="date_duration_separator">-</string>
+    <string name="subscribe">購読</string>
+    <string name="download_episode">保存</string>
+    <string name="share">共有</string>
 </resources>
