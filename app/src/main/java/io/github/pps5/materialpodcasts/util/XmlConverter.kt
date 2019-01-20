@@ -17,6 +17,7 @@ class FeedXmlConverterFactory : Converter.Factory() {
         private const val TAG_ITEM = "item"
         private const val TAG_TITLE = "title"
         private const val TAG_SUBTITLE = "itunes:subtitle"
+        private const val TAG_DURATION = "itunes:duration"
         private const val TAG_ENCLOSURE = "enclosure"
         private const val TAG_GUID = "guid"
         private const val TAG_LINK = "link"
@@ -61,10 +62,11 @@ class FeedXmlConverterFactory : Converter.Factory() {
                 when (child.nodeName) {
                     TAG_TITLE -> item.title = child.textContent
                     TAG_SUBTITLE -> item.subtitle = child.textContent
+                    TAG_DURATION -> item.duration = child.textContent
                     TAG_ENCLOSURE -> item.enclosure = Enclosure(
-                            length = child.attributes.getNamedItem("length").nodeValue,
-                            type = child.attributes.getNamedItem("type").nodeValue,
-                            url = child.attributes.getNamedItem("url").nodeValue
+                            length = child.attributes?.getNamedItem("length")?.nodeValue,
+                            type = child.attributes?.getNamedItem("type")?.nodeValue,
+                            url = child.attributes?.getNamedItem("url")?.nodeValue
                     )
                     TAG_GUID -> item.guid = child.textContent
                     TAG_LINK -> item.link = child.textContent

@@ -7,5 +7,6 @@ data class Item(
         var enclosure: Enclosure? = null,
         var description: String? = null,
         var link: String? = null,
-        var subtitle: String? = null
+        var subtitle: String? = null,
+        var duration: String? = null
 )
