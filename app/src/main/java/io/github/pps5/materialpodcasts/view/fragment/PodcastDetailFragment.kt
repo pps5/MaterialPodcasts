@@ -1,6 +1,9 @@
 package io.github.pps5.materialpodcasts.view.fragment
 
 import android.arch.lifecycle.Observer
+import android.content.Intent
+import android.content.Intent.ACTION_SEND
+import android.content.Intent.EXTRA_TEXT
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -12,6 +15,7 @@ import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.FragmentDetailBinding
 import io.github.pps5.materialpodcasts.extension.args
 import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter
+import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter.ActionType
 import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -60,7 +64,23 @@ class PodcastDetailFragment : Fragment() {
                 binding.progressBar.progressiveStop()
             }
         })
+        viewModel.actionType.observe(this, Observer { onClickAction(it) })
         return binding.root
     }
 
+    private fun onClickAction(type: ActionType?) {
+        when (type) {
+            ActionType.SUBSCRIBE -> TODO()
+            ActionType.DOWNLOAD -> TODO()
+            ActionType.SHARE -> handleShareAction()
+        }
+    }
+
+    private fun handleShareAction() {
+        val intent = Intent(ACTION_SEND).also {
+            it.type = "text/plain"
+            it.putExtra(EXTRA_TEXT, "$title - $artistName")
+        }
+        startActivity(intent)
+    }
 }

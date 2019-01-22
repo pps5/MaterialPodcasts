@@ -62,7 +62,7 @@ class PodcastDetailAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
             PODCAST_DATA_TYPE -> PodcastDataViewHolder(parent.inflate(R.layout.list_item_about))
-            ACTION_TYPE -> ActionsViewHolder(parent.inflate(R.layout.list_item_action))
+            ACTION_TYPE -> ActionsViewHolder(parent.inflate(R.layout.list_item_action), viewModel)
             EPISODE_HEADER_TYPE -> EpisodeHeaderViewHolder(parent.inflate(R.layout.list_item_episode_header))
             else -> TrackViewHolder(parent.inflate(R.layout.list_item_track))
         }
@@ -86,6 +86,19 @@ class PodcastDetailAdapter(
         }
     }
 
+    private class ActionsViewHolder(
+            private val binding: ListItemActionBinding,
+            private val actionClickListener: ActionClickListener
+    ) : BaseViewHolder(binding) {
+        override fun bind(position: Int) {
+            binding.eventListener = actionClickListener
+        }
+    }
+
     private inner class EpisodeHeaderViewHolder(binding: ListItemEpisodeHeaderBinding) : BaseViewHolder(binding)
-    private inner class ActionsViewHolder(binding: ListItemActionBinding) : BaseViewHolder(binding)
+
+    enum class ActionType { SUBSCRIBE, DOWNLOAD, SHARE }
+    interface ActionClickListener {
+        fun onActionClicked(type: ActionType)
+    }
 }

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="eventListener"
+            type="io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter.ActionClickListener" />
+
+        <import type="io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter.ActionType" />
+    </data>
+
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,6 +26,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="@{() -> eventListener.onActionClicked(ActionType.SUBSCRIBE)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/action_area_download"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,6 +60,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="@{() -> eventListener.onActionClicked(ActionType.DOWNLOAD)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/action_area_share"
             app:layout_constraintStart_toEndOf="@id/action_area_subscribe"
@@ -85,6 +96,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
+            android:onClick="@{() -> eventListener.onActionClicked(ActionType.SHARE)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/action_area_download"
