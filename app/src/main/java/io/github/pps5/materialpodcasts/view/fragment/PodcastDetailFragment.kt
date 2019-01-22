@@ -1,6 +1,5 @@
 package io.github.pps5.materialpodcasts.view.fragment
 
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_TEXT
@@ -14,6 +13,8 @@ import android.view.ViewGroup
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.FragmentDetailBinding
 import io.github.pps5.materialpodcasts.extension.args
+import io.github.pps5.materialpodcasts.extension.observe
+import io.github.pps5.materialpodcasts.extension.observeNonNull
 import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter
 import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter.ActionType
 import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
@@ -52,29 +53,29 @@ class PodcastDetailFragment : Fragment() {
             it.viewModel = viewModel
             it.setLifecycleOwner(this)
         }
-        binding.contentContainer.let {
-            it.addOnScrollListener(binding.topBar.scrollChangeListener)
-            it.layoutManager = LinearLayoutManager(context)
-            it.adapter = PodcastDetailAdapter(viewModel, this)
-        }
-        viewModel.isLoading.observe(this, Observer {
-            if (it == true) {
-                binding.progressBar.progressiveStart()
-            } else {
-                binding.progressBar.progressiveStop()
-            }
-        })
-        viewModel.actionType.observe(this, Observer { onClickAction(it) })
+        setUpContentContainer()
+        viewModel.isLoading.observe(this) { onChangeLoadingState(it) }
+        viewModel.actionType.observeNonNull(this) { onClickAction(it) }
         return binding.root
     }
 
-    private fun onClickAction(type: ActionType?) {
-        when (type) {
-            ActionType.SUBSCRIBE -> TODO()
-            ActionType.DOWNLOAD -> TODO()
-            ActionType.SHARE -> handleShareAction()
-        }
-    }
+    private fun setUpContentContainer() =
+            binding.contentContainer.let {
+                it.addOnScrollListener(binding.topBar.scrollChangeListener)
+                it.layoutManager = LinearLayoutManager(context)
+                it.adapter = PodcastDetailAdapter(viewModel, this)
+            }
+
+    private fun onChangeLoadingState(isLoading: Boolean?) =
+            if (isLoading == true) binding.progressBar.progressiveStart()
+            else binding.progressBar.progressiveStop()
+
+    private fun onClickAction(type: ActionType) =
+            when (type) {
+                ActionType.SUBSCRIBE -> TODO()
+                ActionType.DOWNLOAD -> TODO()
+                ActionType.SHARE -> handleShareAction()
+            }
 
     private fun handleShareAction() {
         val intent = Intent(ACTION_SEND).also {
