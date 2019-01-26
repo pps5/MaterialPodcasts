@@ -54,8 +54,8 @@ class PodcastDetailFragment : Fragment() {
             it.setLifecycleOwner(this)
         }
         setUpContentContainer()
-        viewModel.isLoading.observe(this) { onChangeLoadingState(it) }
-        viewModel.actionType.observeNonNull(this) { onClickAction(it) }
+        viewModel.isLoading.observe(this, ::onChangeLoadingState)
+        viewModel.actionType.observeNonNull(this, ::onClickAction)
         return binding.root
     }
 
