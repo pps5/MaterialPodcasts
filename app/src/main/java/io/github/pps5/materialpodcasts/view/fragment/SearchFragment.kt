@@ -18,6 +18,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.FragmentSearchBinding
+import io.github.pps5.materialpodcasts.extension.observe
 import io.github.pps5.materialpodcasts.model.artworkBaseUrl
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
@@ -46,8 +47,10 @@ class SearchFragment : Fragment() {
             it.content.layoutManager = GridLayoutManager(context, 2)
             it.content.addItemDecoration(ItemOffsetDecoration(context!!, R.dimen.card_offset))
         }
-        observeSearchState()
-        observePodcastClick()
+        viewModel.let {
+            it.selectedPodcast.observe(this, ::onClickPodcast)
+            it.podcasts.observe(this, ::onSearchStateChanged)
+        }
         return binding.root
     }
 
@@ -63,31 +66,34 @@ class SearchFragment : Fragment() {
         listener = null
     }
 
-    private fun observePodcastClick() = viewModel.selectedPodcast.observe(this, Observer {
-        listener?.addDetailFragment(PodcastDetailFragment.newInstance(
-                it!!.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl))
-    })
+    private fun onClickPodcast(podcast: Podcast?) {
+        podcast?.let {
+            listener?.addDetailFragment(PodcastDetailFragment.newInstance(
+                    it.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl))
+            viewModel.resetSelection()
+        }
+    }
 
-    private fun observeSearchState() = viewModel.podcasts.observe(this, Observer {
-        when (it) {
+    private fun onSearchStateChanged(podcasts: Resource<ITunesResponse>?) {
+        when (podcasts) {
             is Resource.Loading -> { // no-op
             }
             is Resource.Success -> {
-                if (it.value.resultCount == 0) {
+                if (podcasts.value.resultCount == 0) {
                     binding.content.adapter = PodcastCardsAdapter(listOf(), viewModel)
                     binding.notFound.visibility = VISIBLE
                 } else {
-                    val podcastList = it.value.results.filter { item -> !item.feedUrl.isNullOrEmpty() }
+                    val podcastList = podcasts.value.results.filter { item -> !item.feedUrl.isNullOrEmpty() }
                     binding.content.adapter = PodcastCardsAdapter(podcastList, viewModel)
                     binding.notFound.visibility = GONE
                 }
             }
             is Resource.Error -> {
-                Log.d("dbg", "error: ${it.throwable.message}")
+                Log.d(TAG, "error: ${podcasts.throwable.message}")
                 Toast.makeText(context, R.string.podcast_loading_error, LENGTH_SHORT).show()
             }
         }
-    })
+    }
 
     override fun onDestroyView() {
         (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)
