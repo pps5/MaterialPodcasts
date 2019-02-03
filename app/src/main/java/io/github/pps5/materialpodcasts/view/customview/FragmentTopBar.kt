@@ -70,8 +70,6 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
     private fun setUpSearchBar() {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         binding.searchEditText.let {
-            it.requestFocus()
-            it.post { imm.showSoftInput(it, 0) }
             it.addTextChangedListener(searchBarWatcher)
             it.setOnKeyListener { v, keyCode, event ->
                 if (event.action == ACTION_DOWN && keyCode == KEYCODE_ENTER) {
@@ -83,6 +81,16 @@ class FragmentTopBar : AppBarLayout, KoinComponent {
             }
         }
         binding.buttonDeleteAll.setOnClickListener { binding.searchEditText.editableText.clear() }
+    }
+
+    fun showIme() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        binding.searchEditText.let {
+            it.isFocusable = true
+            it.isFocusableInTouchMode = true
+            it.requestFocus()
+            it.post { imm.showSoftInput(it, 0) }
+        }
     }
 
     private val searchBarWatcher = object : TextWatcher {

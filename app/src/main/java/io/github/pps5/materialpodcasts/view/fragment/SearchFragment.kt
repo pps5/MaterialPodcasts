@@ -1,7 +1,6 @@
 package io.github.pps5.materialpodcasts.view.fragment
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -19,6 +18,8 @@ import android.widget.Toast.LENGTH_SHORT
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.FragmentSearchBinding
 import io.github.pps5.materialpodcasts.extension.observe
+import io.github.pps5.materialpodcasts.model.ITunesResponse
+import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.model.artworkBaseUrl
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
@@ -29,7 +30,7 @@ import org.koin.android.ext.android.inject
 class SearchFragment : Fragment() {
 
     companion object {
-        private val TAG = SearchFragment::class.java.simpleName
+        val TAG = SearchFragment::class.java.simpleName
     }
     private var listener: FragmentInteractionListener? = null
     private lateinit var binding: FragmentSearchBinding
@@ -53,6 +54,8 @@ class SearchFragment : Fragment() {
         }
         return binding.root
     }
+
+    fun showIme() = binding.topBar.showIme()
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)

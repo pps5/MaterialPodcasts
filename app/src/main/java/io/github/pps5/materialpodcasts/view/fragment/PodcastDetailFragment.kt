@@ -24,6 +24,7 @@ import org.koin.core.parameter.parametersOf
 class PodcastDetailFragment : Fragment() {
 
     companion object {
+        val TAG: String = PodcastDetailFragment::class.java.simpleName
         private const val ARGS_KEY_FEED_URL = "feed_url"
         private const val ARGS_KEY_ARTIST_NAME = "artist_name"
         private const val ARGS_KEY_TITLE = "title"

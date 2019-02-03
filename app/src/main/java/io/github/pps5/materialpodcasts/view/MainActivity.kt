@@ -7,16 +7,22 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ActivityMainBinding
-import io.github.pps5.materialpodcasts.databinding.FragmentSearchBinding
+import io.github.pps5.materialpodcasts.view.fragment.PodcastDetailFragment
 import io.github.pps5.materialpodcasts.view.fragment.SearchFragment
-import io.github.pps5.materialpodcasts.view.navigator.MainNavigator
+import io.github.pps5.materialpodcasts.view.navigator.SearchNavigator
 import io.github.pps5.materialpodcasts.view.viewmodel.BottomSheetViewModel
 import org.koin.android.ext.android.inject
 
-class MainActivity : AppCompatActivity(), MainNavigator, SearchFragment.FragmentInteractionListener {
+class MainActivity : AppCompatActivity(), SearchNavigator, SearchFragment.FragmentInteractionListener {
+
+    companion object {
+        private const val BUNDLE_KEY_OVERLAY_TAG_STACK = "overlay_tag_stack"
+    }
 
     private lateinit var binding: ActivityMainBinding
     private val sheetCallbackMediator: SheetCallbackMediator by inject()
+
+    override val overlayTagStack = ArrayList<String>()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -25,7 +31,13 @@ class MainActivity : AppCompatActivity(), MainNavigator, SearchFragment.Fragment
         return@OnNavigationItemSelectedListener true
     }
 
-    override fun onBackPressed() = if (isOverlayVisible) back() else super.onBackPressed()
+    override fun onBackPressed() = onBack()
+
+    private fun onBack() {
+        if (!backOnOverlay()) {
+            super.onBackPressed()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +47,19 @@ class MainActivity : AppCompatActivity(), MainNavigator, SearchFragment.Fragment
         binding.nowPlayingSheet.initialize(binding.slidingUpPanel, BottomSheetViewModel())
     }
 
-    override fun removeSearchFragment() = hideSearchOverlay()
-    override fun addDetailFragment(fragment: Fragment) = addOverlay(fragment)
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        overlayTagStack.addAll(savedInstanceState?.getStringArrayList(BUNDLE_KEY_OVERLAY_TAG_STACK) ?: arrayListOf())
+        restoreOverlay()
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putStringArrayList(BUNDLE_KEY_OVERLAY_TAG_STACK, overlayTagStack)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun removeSearchFragment() = onBack()
+    override fun addDetailFragment(fragment: Fragment) = addOverlay(fragment, PodcastDetailFragment.TAG)
 
     override fun MainActivity.getActivityBinding() = binding
 
