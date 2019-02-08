@@ -17,6 +17,10 @@ class UrlLoadingImageView @JvmOverloads constructor(
         defStyleAttr: Int = 0
 ) : ImageView(context, attrs, defStyleAttr), KoinComponent {
 
+    companion object {
+        private val TAG = UrlLoadingImageView::class.java.simpleName
+    }
+
     private val placeholder: Drawable by inject("placeholder")
     var url: String? = null
 
@@ -36,11 +40,11 @@ class UrlLoadingImageView @JvmOverloads constructor(
         get(urlGenerator.next()!!, object : Callback {
             override fun onSuccess() {
                 url = urlGenerator.lastGenerated
-                Log.d("dbg", "success: $url")
+                Log.d(TAG, "success loading: $url")
             }
 
             override fun onError(e: java.lang.Exception?) {
-                Log.d("dbg", "failed: ${e?.stackTrace}")
+                Log.d(TAG, "failed to load: ${e?.stackTrace}")
                 urlGenerator.next()?.let { get(it, this) }
             }
         })
@@ -63,9 +67,9 @@ class UrlLoadingImageView @JvmOverloads constructor(
         fun next() = if (nextIndex < urls.size) urls[nextIndex++] else null
     }
 
-    @BindingAdapter("app:imageUrl")
-    fun setImageUrl(url: String?) {
-        Log.d("dbg", "set: $url")
+    @Suppress("unused")
+    @BindingAdapter("imageUrl")
+    fun UrlLoadingImageView.setImageUrl(url: String?) {
         url?.let { getArtworkFromNetwork(it) }
     }
 
