@@ -63,8 +63,9 @@ class UrlLoadingImageView @JvmOverloads constructor(
         fun next() = if (nextIndex < urls.size) urls[nextIndex++] else null
     }
 
-    @BindingAdapter("app:imageUrl")
-    fun setImageUrl(url: String?) {
+    @Suppress("unused")
+    @BindingAdapter("imageUrl")
+    fun UrlLoadingImageView.setImageUrl(url: String?) {
         Log.d("dbg", "set: $url")
         url?.let { getArtworkFromNetwork(it) }
     }
