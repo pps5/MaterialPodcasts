@@ -1,54 +1,60 @@
 package io.github.pps5.materialpodcasts.model
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.PrimaryKey
 import java.util.*
 
-val Podcast.artworkBaseUrl
-    get() = artworkUrl30.substringBeforeLast('/')
-
+@Entity
 data class Podcast(
-        val wrapperType: String,
-        val kind: String,
 
-        val collectionId: Int,
-        val trackId: String,
-        val country: String,
-        val trackCount: Int,
-        val releaseDate: String,
+        @PrimaryKey var collectionId: Int = 0,
+        var trackId: String = "",
+        var trackCount: Int = 0,
+        var releaseDate: String = "",
 
-        val artistName: String,
-        val collectionName: String,
-        val trackName: String,
+        var artistName: String = "",
+        var collectionName: String = "",
+        var trackName: String = "",
 
-        val primaryGenreName: String,
-        val genreIds: Array<String>,
-        val genres: Array<String>,
+        var primaryGenreName: String = "",
+        @Ignore var genreIds: Array<String> = arrayOf(),
+        @Ignore var genres: Array<String> = arrayOf(),
 
-        val collectionViewUrl: String,
-        val feedUrl: String?,
-        val trackViewUrl: String,
+        var collectionViewUrl: String = "",
+        var feedUrl: String? = null,
+        var trackViewUrl: String = "",
 
-        val artworkUrl30: String,
-        val artworkUrl60: String?,
-        val artworkUrl100: String?,
+        var artworkUrl30: String = "",
+        var artworkUrl60: String? = null,
+        var artworkUrl100: String? = null,
 
-        val collectionPrice: Float,
-        val trackPrice: Float,
-        val trackRentalPrice: Int,
-        val collectionHdPrice: Int,
-        val trackHdPrice: Int,
-        val trackHdRentalPrice: Int
+        @Ignore var collectionPrice: Float = 0F,
+        @Ignore var trackPrice: Float = 0F,
+        @Ignore var trackRentalPrice: Int = 0,
+        @Ignore var collectionHdPrice: Int = 0,
+        @Ignore var trackHdPrice: Int = 0,
+        @Ignore var trackHdRentalPrice: Int = 0
 ) {
+
+    val artworkBaseUrl: String
+        get() = artworkUrl30.substringBeforeLast('/')
+
+    fun isFree(): Boolean {
+        return arrayOf(collectionPrice, trackPrice, trackRentalPrice,
+                collectionHdPrice, trackHdPrice, trackHdRentalPrice)
+                .map { (it as Number).toFloat() }
+                .all { it > 0F }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as Podcast
 
-        if (wrapperType != other.wrapperType) return false
-        if (kind != other.kind) return false
         if (collectionId != other.collectionId) return false
         if (trackId != other.trackId) return false
-        if (country != other.country) return false
         if (trackCount != other.trackCount) return false
         if (releaseDate != other.releaseDate) return false
         if (artistName != other.artistName) return false
@@ -74,11 +80,8 @@ data class Podcast(
     }
 
     override fun hashCode(): Int {
-        var result = wrapperType.hashCode()
-        result = 31 * result + kind.hashCode()
-        result = 31 * result + collectionId
+        var result = collectionId
         result = 31 * result + trackId.hashCode()
-        result = 31 * result + country.hashCode()
         result = 31 * result + trackCount
         result = 31 * result + releaseDate.hashCode()
         result = 31 * result + artistName.hashCode()

@@ -20,7 +20,6 @@ import io.github.pps5.materialpodcasts.databinding.FragmentSearchBinding
 import io.github.pps5.materialpodcasts.extension.observe
 import io.github.pps5.materialpodcasts.model.ITunesResponse
 import io.github.pps5.materialpodcasts.model.Podcast
-import io.github.pps5.materialpodcasts.model.artworkBaseUrl
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
 import io.github.pps5.materialpodcasts.view.viewmodel.SearchViewModel
@@ -86,7 +85,9 @@ class SearchFragment : Fragment() {
                     binding.content.adapter = PodcastCardsAdapter(listOf(), viewModel)
                     binding.notFound.visibility = VISIBLE
                 } else {
-                    val podcastList = podcasts.value.results.filter { item -> !item.feedUrl.isNullOrEmpty() }
+                    val podcastList = podcasts.value.results
+                            .filter { item -> !item.feedUrl.isNullOrEmpty() }
+                            .filter { item -> item.isFree() }
                     binding.content.adapter = PodcastCardsAdapter(podcastList, viewModel)
                     binding.notFound.visibility = GONE
                 }
