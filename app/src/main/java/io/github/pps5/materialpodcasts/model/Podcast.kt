@@ -44,7 +44,7 @@ data class Podcast(
         return arrayOf(collectionPrice, trackPrice, trackRentalPrice,
                 collectionHdPrice, trackHdPrice, trackHdRentalPrice)
                 .map { (it as Number).toFloat() }
-                .all { it > 0F }
+                .all { it == 0F }
     }
 
     override fun equals(other: Any?): Boolean {
