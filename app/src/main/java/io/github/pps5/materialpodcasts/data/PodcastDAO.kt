@@ -18,4 +18,6 @@ interface PodcastDAO {
     @Delete
     fun delete(podcast: Podcast)
 
+    @Query("DELETE FROM podcast WHERE collectionId = :collectionId")
+    fun delete(collectionId: Int)
 }
