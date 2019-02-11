@@ -17,6 +17,15 @@ class UrlLoadingImageView @JvmOverloads constructor(
         defStyleAttr: Int = 0
 ) : ImageView(context, attrs, defStyleAttr), KoinComponent {
 
+    companion object {
+        @JvmStatic
+        @BindingAdapter("imageUrl")
+        fun UrlLoadingImageView.setImageUrl(url: String?) {
+            Log.d("dbg", "set: $url")
+            url?.let { getArtworkFromNetwork(it) }
+        }
+    }
+
     private val placeholder: Drawable by inject("placeholder")
     var url: String? = null
 
@@ -62,12 +71,4 @@ class UrlLoadingImageView @JvmOverloads constructor(
 
         fun next() = if (nextIndex < urls.size) urls[nextIndex++] else null
     }
-
-    @Suppress("unused")
-    @BindingAdapter("imageUrl")
-    fun UrlLoadingImageView.setImageUrl(url: String?) {
-        Log.d("dbg", "set: $url")
-        url?.let { getArtworkFromNetwork(it) }
-    }
-
 }
