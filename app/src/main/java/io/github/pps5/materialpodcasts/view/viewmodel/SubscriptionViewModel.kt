@@ -12,7 +12,7 @@ class SubscriptionViewModel : ViewModel(), KoinComponent {
 
     private val repository: SubscriptionRepository by inject()
 
-    private val _subscribingPodcasts = repository.getSubscribingPodcasts()
+    private val _subscribingPodcasts = repository.getSubscription()
     val subscribingPodcasts: LiveData<Resource<List<Podcast>>>
         get() = _subscribingPodcasts
 }

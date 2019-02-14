@@ -32,7 +32,7 @@ class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSe
     val selectedPodcast: LiveData<Podcast>
         get() = _selectedPodcast
     private val query = MutableLiveData<String>()
-    val podcasts: LiveData<Resource<ITunesResponse>> = query.switchMap(repository::search)
+    val podcasts: LiveData<Resource<List<Podcast>>> = query.switchMap(repository::search)
 
     fun cancel() = future?.cancel(true)
 

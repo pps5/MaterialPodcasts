@@ -9,6 +9,9 @@ import io.github.pps5.materialpodcasts.model.Podcast
 @Dao
 interface PodcastDAO {
 
+    @Query("SELECT * FROM podcast WHERE collectionId = :collectionId")
+    fun find(collectionId: Int): Podcast?
+
     @Query("SELECT * FROM podcast")
     fun findAll(): List<Podcast>
 

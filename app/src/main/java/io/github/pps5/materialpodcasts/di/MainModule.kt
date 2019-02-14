@@ -13,8 +13,9 @@ val mainModule = module {
     single { SheetCallbackMediator() }
     viewModel { TopBarViewModel(get()) }
     viewModel { SearchViewModel() }
-    viewModel { (feedUrl: String, title: String, artistName: String, artworkBaseUrl: String) ->
-        PodcastDetailViewModel(feedUrl, title, artistName, artworkBaseUrl)
+    viewModel { (collectionId: Int, feedUrl: String, title: String,
+                        artistName: String, artworkBaseUrl: String) ->
+        PodcastDetailViewModel(collectionId, feedUrl, title, artistName, artworkBaseUrl)
     }
     viewModel { SubscriptionViewModel() }
 }
