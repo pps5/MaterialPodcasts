@@ -42,7 +42,7 @@ class SearchFragment : Fragment() {
             it.setLifecycleOwner(this)
             it.viewModel = viewModel
             if (activity is FragmentInteractionListener) {
-                it.topBar.onClickNavigateUp = (activity as FragmentInteractionListener)::removeSearchFragment
+                it.topBar.onClickNavigateUp = { listener?.onClickNavigateUp() }
                 it.content.addOnScrollListener(binding.topBar.scrollChangeListener)
             }
             it.content.layoutManager = GridLayoutManager(context, 2)
@@ -104,7 +104,7 @@ class SearchFragment : Fragment() {
     }
 
     interface FragmentInteractionListener {
-        fun removeSearchFragment()
+        fun onClickNavigateUp()
         fun addDetailFragment(fragment: Fragment)
     }
 }

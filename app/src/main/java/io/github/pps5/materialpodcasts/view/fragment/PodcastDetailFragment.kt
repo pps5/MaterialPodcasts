@@ -1,5 +1,6 @@
 package io.github.pps5.materialpodcasts.view.fragment
 
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_TEXT
@@ -53,17 +54,31 @@ class PodcastDetailFragment : Fragment() {
         parametersOf(collectionId, feedUrl, title, artistName, artworkUrl)
     }
     private lateinit var binding: FragmentDetailBinding
+    private var listener: SearchFragment.FragmentInteractionListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_detail, container, false)
         binding.let {
             it.viewModel = viewModel
             it.setLifecycleOwner(this)
+            it.topBar.onClickNavigateUp = { listener?.onClickNavigateUp() }
         }
         setUpContentContainer()
         viewModel.channel.observe(this, ::onChangeLoadingState)
         viewModel.actionType.observeNonNull(this, ::onClickShare)
         return binding.root
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context is SearchFragment.FragmentInteractionListener) {
+            listener = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
     }
 
     private fun setUpContentContainer() =

@@ -12,7 +12,7 @@ import io.github.pps5.materialpodcasts.extension.withTransaction
 import io.github.pps5.materialpodcasts.view.MainActivity
 import io.github.pps5.materialpodcasts.view.fragment.SearchFragment
 
-interface SearchNavigator {
+interface OverlayNavigator {
 
     val overlayTagStack: ArrayList<String>
 
@@ -20,12 +20,6 @@ interface SearchNavigator {
 
     private val MainActivity.currentOverlay
         get() = supportFragmentManager.findFragmentById(R.id.overlay_container)
-
-    val MainActivity.isSearchFragmentVisible: Boolean
-        get() {
-            val f = supportFragmentManager.findFragmentByTag(SearchFragment.TAG)
-            return f != null && !f.isDetached
-        }
 
     fun MainActivity.restoreOverlay() {
         supportFragmentManager.let {
@@ -73,6 +67,7 @@ interface SearchNavigator {
             add(R.id.overlay_container, fragment, tag)
             overlayTagStack.add(tag)
         }
+        getActivityBinding().overlayContainer.visibility = VISIBLE
     }
 
     /**
@@ -82,7 +77,7 @@ interface SearchNavigator {
         val manager = supportFragmentManager
         val fragmentToRemove = manager.findFragmentByTag(overlayTagStack.pop())?.also {
             val transition = Fade(Fade.MODE_OUT).setDuration(150)
-            if (it is SearchFragment) {
+            if (overlayTagStack.isEmpty()) {
                 val binding = getActivityBinding()
                 transition.addListener(SelfRemoveTransitionListener(
                         onStart = { binding.overlayBackground.visibility = GONE },
