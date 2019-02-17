@@ -15,9 +15,10 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:elevation="0dp"
+        android:minHeight="?attr/actionBarSize"
         app:elevation="0dp">
 
         <ImageView
@@ -59,10 +60,10 @@
                 android:singleLine="true"
                 android:textSize="@dimen/font_size_edit_text"
                 android:theme="@style/SearchEditText"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/button_delete_all"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/button_delete_all"
@@ -86,8 +87,8 @@
             style="@style/SingleLineTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/margin_large"
-            android:paddingEnd="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_large"
+            android:layout_marginEnd="@dimen/margin_medium"
             android:alpha="@{viewModel.titleAlpha}"
             android:gravity="center_vertical"
             android:text="@{viewModel.title}"
