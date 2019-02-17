@@ -3,7 +3,6 @@ package io.github.pps5.materialpodcasts.view.fragment
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +12,7 @@ import io.github.pps5.materialpodcasts.extension.inflateBinding
 import io.github.pps5.materialpodcasts.extension.observeNonNull
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
+import io.github.pps5.materialpodcasts.view.MainActivity
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
@@ -40,7 +40,7 @@ class SubscriptionFragment : Fragment(), PodcastCardsAdapter.PodcastSelectedList
             it.addItemDecoration(ItemOffsetDecoration(context!!, R.dimen.card_offset))
             it.adapter = PodcastCardsAdapter(listOf(), this)
         }
-        viewModel.subscribingPodcasts.observeNonNull(this, ::onLoadingStateChanged)
+        viewModel.podcasts.observeNonNull(this, ::onLoadingStateChanged)
         return binding.root
     }
 
@@ -60,7 +60,10 @@ class SubscriptionFragment : Fragment(), PodcastCardsAdapter.PodcastSelectedList
     }
 
     override fun onSelectedPodcast(podcast: Podcast) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        (activity as? MainActivity)?.addDetailFragment(
+                PodcastDetailFragment.newInstance(podcast.collectionId, podcast.feedUrl!!,
+                        podcast.trackName, podcast.artistName, podcast.artworkBaseUrl)
+        )
     }
 
 }
