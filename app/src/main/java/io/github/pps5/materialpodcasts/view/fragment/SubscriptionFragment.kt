@@ -13,15 +13,15 @@ import io.github.pps5.materialpodcasts.extension.observeNonNull
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.MainActivity
-import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
 import io.github.pps5.materialpodcasts.view.adapter.SubscriptionAdapter
+import io.github.pps5.materialpodcasts.view.listener.PodcastSelectListener
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
-import io.github.pps5.materialpodcasts.vo.Resource.*
+import io.github.pps5.materialpodcasts.vo.Resource.Error
 import org.koin.android.ext.android.inject
 
 
-class SubscriptionFragment : Fragment(), PodcastCardsAdapter.PodcastSelectedListener {
+class SubscriptionFragment : Fragment(), PodcastSelectListener {
 
     companion object {
         val TAG = SubscriptionFragment::class.java.simpleName
@@ -51,7 +51,7 @@ class SubscriptionFragment : Fragment(), PodcastCardsAdapter.PodcastSelectedList
         }
     }
 
-    override fun onSelectedPodcast(podcast: Podcast) {
+    override fun onSelected(podcast: Podcast) {
         (activity as? MainActivity)?.addDetailFragment(
                 PodcastDetailFragment.newInstance(podcast.collectionId, podcast.feedUrl!!,
                         podcast.trackName, podcast.artistName, podcast.artworkBaseUrl)

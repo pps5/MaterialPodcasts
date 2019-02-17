@@ -10,8 +10,8 @@
             type="io.github.pps5.materialpodcasts.model.Podcast" />
 
         <variable
-            name="selectedListener"
-            type="io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter.PodcastSelectedListener" />
+            name="selectListener"
+            type="io.github.pps5.materialpodcasts.view.listener.PodcastSelectListener" />
     </data>
 
     <android.support.v7.widget.CardView
@@ -21,7 +21,7 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="@drawable/card_ripple_effect"
-        android:onClick="@{() -> selectedListener.onSelectedPodcast(podcast)}">
+        android:onClick="@{() -> selectListener.onSelected(podcast)}">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
