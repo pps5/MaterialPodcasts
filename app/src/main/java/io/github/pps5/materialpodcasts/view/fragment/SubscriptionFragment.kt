@@ -2,7 +2,7 @@ package io.github.pps5.materialpodcasts.view.fragment
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.StaggeredGridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +14,7 @@ import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.MainActivity
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
+import io.github.pps5.materialpodcasts.view.adapter.SubscriptionAdapter
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 import io.github.pps5.materialpodcasts.vo.Resource.*
@@ -36,9 +37,9 @@ class SubscriptionFragment : Fragment(), PodcastCardsAdapter.PodcastSelectedList
             it.viewModel = viewModel
         }
         binding.content.let {
-            it.layoutManager = GridLayoutManager(context, 2)
+            it.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             it.addItemDecoration(ItemOffsetDecoration(context!!, R.dimen.card_offset))
-            it.adapter = PodcastCardsAdapter(listOf(), this)
+            it.adapter = SubscriptionAdapter(viewModel, this)
         }
         viewModel.podcasts.observeNonNull(this, ::onLoadingStateChanged)
         return binding.root
@@ -46,15 +47,6 @@ class SubscriptionFragment : Fragment(), PodcastCardsAdapter.PodcastSelectedList
 
     private fun onLoadingStateChanged(podcasts: Resource<List<Podcast>>) {
         when (podcasts) {
-            is Loading -> { // no-op
-            }
-            is Success -> {
-                val adapter = binding.content.adapter
-                when (adapter) {
-                    is PodcastCardsAdapter -> adapter.setPodcasts(podcasts.value)
-                    else -> throw IllegalStateException("Adapter should be PodcastCardsAdapter")
-                }
-            }
             is Error -> podcasts.throwable.printStackTrace() // TODO: show error message to user
         }
     }

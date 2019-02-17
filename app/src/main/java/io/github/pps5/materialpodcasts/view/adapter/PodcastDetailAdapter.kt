@@ -2,11 +2,7 @@ package io.github.pps5.materialpodcasts.view.adapter
 
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
-import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ListItemAboutBinding
@@ -18,14 +14,10 @@ import io.github.pps5.materialpodcasts.model.Item
 import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 
-open class BaseViewHolder(binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-    open fun bind(position: Int) {}
-}
-
 class PodcastDetailAdapter(
         private val viewModel: PodcastDetailViewModel,
         lifecycleOwner: LifecycleOwner
-) : RecyclerView.Adapter<BaseViewHolder>() {
+) : MultipleTypeAdapter() {
 
     companion object {
         private val TAG = PodcastDetailAdapter::class.java.simpleName
@@ -55,9 +47,6 @@ class PodcastDetailAdapter(
     init {
         viewModel.channel.observe(lifecycleOwner, channelObserver)
     }
-
-    private fun <T : ViewDataBinding> ViewGroup.inflate(layoutId: Int) =
-            DataBindingUtil.inflate<T>(LayoutInflater.from(context), layoutId, this, false)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
@@ -95,7 +84,9 @@ class PodcastDetailAdapter(
         }
     }
 
-    private inner class EpisodeHeaderViewHolder(binding: ListItemEpisodeHeaderBinding) : BaseViewHolder(binding)
+    private class EpisodeHeaderViewHolder(binding: ListItemEpisodeHeaderBinding) : BaseViewHolder(binding) {
+        override fun bind(position: Int) {}
+    }
 
     enum class ActionType { SUBSCRIBE, DOWNLOAD, SHARE }
     interface ActionClickListener {

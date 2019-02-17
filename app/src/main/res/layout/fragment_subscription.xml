@@ -16,39 +16,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <io.github.pps5.materialpodcasts.view.customview.FragmentTopBar
-            android:id="@+id/top_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:elevation="0dp"
-            android:paddingBottom="@dimen/margin_medium"
-            app:layout_constraintBottom_toTopOf="@id/content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:topBarTitle="@string/subscribe" />
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/top_bar"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:overScrollMode="never"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"/>
+
 
         <TextView
+            android:id="@+id/no_results"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/white"
             android:gravity="center"
             android:text="@string/no_podcast_found"
+            android:visibility="@{viewModel.shouldShowNoResults ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/top_bar"
-            android:visibility="@{viewModel.shouldShowNoResults ? View.VISIBLE : View.GONE}"
-            tools:visibility="gone" />
+            app:layout_constraintTop_toBottomOf="@id/content"
+            tools:visibility="visible" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>
