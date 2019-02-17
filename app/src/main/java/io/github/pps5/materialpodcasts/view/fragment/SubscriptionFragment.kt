@@ -14,14 +14,13 @@ import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.MainActivity
 import io.github.pps5.materialpodcasts.view.adapter.SubscriptionAdapter
-import io.github.pps5.materialpodcasts.view.listener.PodcastSelectListener
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 import io.github.pps5.materialpodcasts.vo.Resource.Error
 import org.koin.android.ext.android.inject
 
 
-class SubscriptionFragment : Fragment(), PodcastSelectListener {
+class SubscriptionFragment : Fragment() {
 
     companion object {
         val TAG = SubscriptionFragment::class.java.simpleName
@@ -42,20 +41,23 @@ class SubscriptionFragment : Fragment(), PodcastSelectListener {
             it.adapter = SubscriptionAdapter(viewModel, this)
         }
         viewModel.podcasts.observeNonNull(this, ::onLoadingStateChanged)
+        viewModel.selectedPodcast.observeNonNull(this, ::onSelected)
         return binding.root
     }
 
     private fun onLoadingStateChanged(podcasts: Resource<List<Podcast>>) {
         when (podcasts) {
-            is Error -> podcasts.throwable.printStackTrace() // TODO: show error message to user
+            is Error -> podcasts.throwable.printStackTrace()
         }
     }
 
-    override fun onSelected(podcast: Podcast) {
+    private fun onSelected(podcast: Podcast) {
         (activity as? MainActivity)?.addDetailFragment(
                 PodcastDetailFragment.newInstance(podcast.collectionId, podcast.feedUrl!!,
                         podcast.trackName, podcast.artistName, podcast.artworkBaseUrl)
         )
+        // reset selection for re-observe on restored
+        viewModel.onSelected(null)
     }
 
 }

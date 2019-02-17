@@ -8,6 +8,7 @@ import io.github.pps5.materialpodcasts.databinding.ListItemTopLevelHeaderBinding
 import io.github.pps5.materialpodcasts.databinding.PodcastCardLayoutBinding
 import io.github.pps5.materialpodcasts.extension.observe
 import io.github.pps5.materialpodcasts.model.Podcast
+import io.github.pps5.materialpodcasts.view.listener.PodcastSelectListener
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 
@@ -21,9 +22,11 @@ class SubscriptionAdapter(
         private const val PODCAST_TYPE = 1
     }
 
+    private val podcastSelectListener: PodcastSelectListener
     private val podcasts: MutableList<Podcast> = arrayListOf()
 
     init {
+        podcastSelectListener = viewModel
         viewModel.podcasts.observe(lifecycleOwner) {
             if (it is Resource.Success) {
                 podcasts.clear()
@@ -58,6 +61,7 @@ class SubscriptionAdapter(
         override fun bind(position: Int) = podcasts[position - 1].let {
             binding.podcast = it
             binding.artwork.getArtworkFromNetwork(it.artworkBaseUrl)
+            binding.selectListener = podcastSelectListener
         }
     }
 }

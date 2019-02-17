@@ -47,7 +47,7 @@ class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSe
         }
     }
 
-    override fun onSelected(podcast: Podcast) = _selectedPodcast.postValue(podcast)
+    override fun onSelected(podcast: Podcast?) = _selectedPodcast.postValue(podcast)
     fun resetSelection() = _selectedPodcast.postValue(null)
 
     override fun onEnterSearchBar(text: String) = setQuery(text, true)
