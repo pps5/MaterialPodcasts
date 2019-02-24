@@ -1,6 +1,7 @@
 package io.github.pps5.materialpodcasts.model
 
 data class Podcast(
+    var collectionId: Int = 0,
     var trackCount: Int = 0,
     var artistName: String = "",
     var collectionName: String = "",

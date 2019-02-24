@@ -4,13 +4,17 @@ import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Transaction
-import io.github.pps5.materialpodcasts.model.*
+import io.github.pps5.materialpodcasts.model.Subscription
+import io.github.pps5.materialpodcasts.model.Track
 
 @Dao
 interface SubscriptionDAO {
 
     @Query("SELECT * FROM subscription WHERE collectionId = :collectionId")
     fun find(collectionId: Int): Subscription?
+
+    @Query("SELECT * FROM track WHERE collectionId = :collectionId")
+    fun findTracks(collectionId: Int): List<Track>
 
     @Query("SELECT * FROM subscription")
     fun findAll(): List<Subscription>
@@ -31,4 +35,17 @@ interface SubscriptionDAO {
         insert(tracks)
     }
 
+    @Transaction
+    fun findWithTracks(collectionId: Int): Subscription? {
+        val subscription = find(collectionId)
+        if (subscription?.channel == null) {
+            return null
+        }
+        val tracks = findTracks(collectionId)
+        return if (tracks.isEmpty()) {
+            null
+        } else {
+            subscription.also { s -> s.channel!!.tracks = tracks }
+        }
+    }
 }

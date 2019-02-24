@@ -26,7 +26,7 @@ class PodcastDetailViewModel(
 
     val channel: LiveData<Resource<Channel>>
         get() = _channel
-    private val _channel = detailRepository.getDetail(feedUrl)
+    private val _channel = detailRepository.getDetail(collectionId, feedUrl)
 
     val description: LiveData<String>
         get() = _description
