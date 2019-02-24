@@ -10,13 +10,13 @@ import io.github.pps5.materialpodcasts.databinding.ListItemActionBinding
 import io.github.pps5.materialpodcasts.databinding.ListItemEpisodeHeaderBinding
 import io.github.pps5.materialpodcasts.databinding.ListItemTrackBinding
 import io.github.pps5.materialpodcasts.model.Channel
-import io.github.pps5.materialpodcasts.model.Item
+import io.github.pps5.materialpodcasts.model.Track
 import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 
 class PodcastDetailAdapter(
-        private val viewModel: PodcastDetailViewModel,
-        lifecycleOwner: LifecycleOwner
+    private val viewModel: PodcastDetailViewModel,
+    lifecycleOwner: LifecycleOwner
 ) : MultipleTypeAdapter() {
 
     companion object {
@@ -26,14 +26,14 @@ class PodcastDetailAdapter(
         private const val EPISODE_HEADER_TYPE = 2
     }
 
-    private var trackList = listOf<Item>()
+    private var trackList = listOf<Track>()
     private val channelObserver = Observer<Resource<Channel>> {
         when (it) {
             is Resource.Loading -> Log.d(TAG, "loading channel")
             is Resource.Success -> {
                 it.value.description?.let { d -> viewModel.setDescription(d) }
-                if (!it.value.items.isNullOrEmpty()) {
-                    trackList = it.value.items!!
+                if (!it.value.tracks.isNullOrEmpty()) {
+                    trackList = it.value.tracks!!
                     notifyDataSetChanged()
                 }
             }
@@ -76,8 +76,8 @@ class PodcastDetailAdapter(
     }
 
     private class ActionsViewHolder(
-            private val binding: ListItemActionBinding,
-            private val actionClickListener: ActionClickListener
+        private val binding: ListItemActionBinding,
+        private val actionClickListener: ActionClickListener
     ) : BaseViewHolder(binding) {
         override fun bind(position: Int) {
             binding.eventListener = actionClickListener

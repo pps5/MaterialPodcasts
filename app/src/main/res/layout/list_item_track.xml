@@ -5,7 +5,7 @@
 
         <variable
             name="item"
-            type="io.github.pps5.materialpodcasts.model.Item" />
+            type="io.github.pps5.materialpodcasts.model.Track" />
 
         <import type="android.view.View" />
     </data>

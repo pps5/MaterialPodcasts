@@ -13,8 +13,8 @@ import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 
 class SubscriptionAdapter(
-        viewModel: SubscriptionViewModel,
-        lifecycleOwner: LifecycleOwner
+    viewModel: SubscriptionViewModel,
+    lifecycleOwner: LifecycleOwner
 ) : MultipleTypeAdapter() {
 
     companion object {
@@ -52,7 +52,7 @@ class SubscriptionAdapter(
     private class HeaderViewHolder(private val binding: ListItemTopLevelHeaderBinding) : BaseViewHolder(binding) {
         override fun bind(position: Int) {
             (binding.root.layoutParams as? StaggeredGridLayoutManager.LayoutParams)
-                    ?.isFullSpan = true
+                ?.isFullSpan = true
             binding.title = R.string.subscribe
         }
     }
