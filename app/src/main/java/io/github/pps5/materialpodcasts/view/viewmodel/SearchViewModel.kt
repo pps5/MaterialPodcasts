@@ -4,11 +4,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import io.github.pps5.materialpodcasts.extension.switchMap
-import io.github.pps5.materialpodcasts.model.ITunesResponse
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.repository.SearchRepository
-import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter.PodcastSelectedListener
 import io.github.pps5.materialpodcasts.view.customview.FragmentTopBar.SearchBarListener
+import io.github.pps5.materialpodcasts.view.listener.PodcastSelectListener
 import io.github.pps5.materialpodcasts.vo.Resource
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
@@ -16,7 +15,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
-class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSelectedListener {
+class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSelectListener {
 
     companion object {
         private const val SEARCH_DELAY = 1500L
@@ -32,7 +31,7 @@ class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSe
     val selectedPodcast: LiveData<Podcast>
         get() = _selectedPodcast
     private val query = MutableLiveData<String>()
-    val podcasts: LiveData<Resource<ITunesResponse>> = query.switchMap(repository::search)
+    val podcasts: LiveData<Resource<List<Podcast>>> = query.switchMap(repository::search)
 
     fun cancel() = future?.cancel(true)
 
@@ -48,7 +47,7 @@ class SearchViewModel : ViewModel(), KoinComponent, SearchBarListener, PodcastSe
         }
     }
 
-    override fun onSelectedPodcast(podcast: Podcast) = _selectedPodcast.postValue(podcast)
+    override fun onSelected(podcast: Podcast?) = _selectedPodcast.postValue(podcast)
     fun resetSelection() = _selectedPodcast.postValue(null)
 
     override fun onEnterSearchBar(text: String) = setQuery(text, true)

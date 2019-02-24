@@ -2,11 +2,7 @@ package io.github.pps5.materialpodcasts.view.adapter
 
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
-import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ListItemAboutBinding
@@ -14,18 +10,14 @@ import io.github.pps5.materialpodcasts.databinding.ListItemActionBinding
 import io.github.pps5.materialpodcasts.databinding.ListItemEpisodeHeaderBinding
 import io.github.pps5.materialpodcasts.databinding.ListItemTrackBinding
 import io.github.pps5.materialpodcasts.model.Channel
-import io.github.pps5.materialpodcasts.model.Item
+import io.github.pps5.materialpodcasts.model.Track
 import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 
-open class BaseViewHolder(binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-    open fun bind(position: Int) {}
-}
-
 class PodcastDetailAdapter(
-        private val viewModel: PodcastDetailViewModel,
-        lifecycleOwner: LifecycleOwner
-) : RecyclerView.Adapter<BaseViewHolder>() {
+    private val viewModel: PodcastDetailViewModel,
+    lifecycleOwner: LifecycleOwner
+) : MultipleTypeAdapter() {
 
     companion object {
         private val TAG = PodcastDetailAdapter::class.java.simpleName
@@ -34,14 +26,14 @@ class PodcastDetailAdapter(
         private const val EPISODE_HEADER_TYPE = 2
     }
 
-    private var trackList = listOf<Item>()
+    private var trackList = listOf<Track>()
     private val channelObserver = Observer<Resource<Channel>> {
         when (it) {
             is Resource.Loading -> Log.d(TAG, "loading channel")
             is Resource.Success -> {
                 it.value.description?.let { d -> viewModel.setDescription(d) }
-                if (!it.value.items.isNullOrEmpty()) {
-                    trackList = it.value.items!!
+                if (!it.value.tracks.isNullOrEmpty()) {
+                    trackList = it.value.tracks!!
                     notifyDataSetChanged()
                 }
             }
@@ -55,9 +47,6 @@ class PodcastDetailAdapter(
     init {
         viewModel.channel.observe(lifecycleOwner, channelObserver)
     }
-
-    private fun <T : ViewDataBinding> ViewGroup.inflate(layoutId: Int) =
-            DataBindingUtil.inflate<T>(LayoutInflater.from(context), layoutId, this, false)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
@@ -87,15 +76,17 @@ class PodcastDetailAdapter(
     }
 
     private class ActionsViewHolder(
-            private val binding: ListItemActionBinding,
-            private val actionClickListener: ActionClickListener
+        private val binding: ListItemActionBinding,
+        private val actionClickListener: ActionClickListener
     ) : BaseViewHolder(binding) {
         override fun bind(position: Int) {
             binding.eventListener = actionClickListener
         }
     }
 
-    private inner class EpisodeHeaderViewHolder(binding: ListItemEpisodeHeaderBinding) : BaseViewHolder(binding)
+    private class EpisodeHeaderViewHolder(binding: ListItemEpisodeHeaderBinding) : BaseViewHolder(binding) {
+        override fun bind(position: Int) {}
+    }
 
     enum class ActionType { SUBSCRIBE, DOWNLOAD, SHARE }
     interface ActionClickListener {

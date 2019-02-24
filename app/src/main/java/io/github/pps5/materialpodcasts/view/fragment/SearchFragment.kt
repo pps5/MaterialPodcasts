@@ -18,7 +18,7 @@ import android.widget.Toast.LENGTH_SHORT
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.FragmentSearchBinding
 import io.github.pps5.materialpodcasts.extension.observe
-import io.github.pps5.materialpodcasts.model.ITunesResponse
+import io.github.pps5.materialpodcasts.extension.observeNonNull
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
@@ -31,6 +31,7 @@ class SearchFragment : Fragment() {
     companion object {
         val TAG = SearchFragment::class.java.simpleName
     }
+
     private var listener: FragmentInteractionListener? = null
     private lateinit var binding: FragmentSearchBinding
     private val viewModel: SearchViewModel by inject()
@@ -41,7 +42,7 @@ class SearchFragment : Fragment() {
             it.setLifecycleOwner(this)
             it.viewModel = viewModel
             if (activity is FragmentInteractionListener) {
-                it.topBar.onClickNavigateUp = (activity as FragmentInteractionListener)::removeSearchFragment
+                it.topBar.onClickNavigateUp = { listener?.onClickNavigateUp() }
                 it.content.addOnScrollListener(binding.topBar.scrollChangeListener)
             }
             it.content.layoutManager = GridLayoutManager(context, 2)
@@ -49,7 +50,7 @@ class SearchFragment : Fragment() {
         }
         viewModel.let {
             it.selectedPodcast.observe(this, ::onClickPodcast)
-            it.podcasts.observe(this, ::onSearchStateChanged)
+            it.podcasts.observeNonNull(this, ::onSearchStateChanged)
         }
         return binding.root
     }
@@ -71,26 +72,21 @@ class SearchFragment : Fragment() {
     private fun onClickPodcast(podcast: Podcast?) {
         podcast?.let {
             listener?.addDetailFragment(PodcastDetailFragment.newInstance(
-                    it.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl))
+                    it.collectionId, it.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl))
             viewModel.resetSelection()
         }
     }
 
-    private fun onSearchStateChanged(podcasts: Resource<ITunesResponse>?) {
+    private fun onSearchStateChanged(podcasts: Resource<List<Podcast>>) {
         when (podcasts) {
             is Resource.Loading -> { // no-op
             }
             is Resource.Success -> {
-                if (podcasts.value.resultCount == 0) {
-                    binding.content.adapter = PodcastCardsAdapter(listOf(), viewModel)
-                    binding.notFound.visibility = VISIBLE
-                } else {
-                    val podcastList = podcasts.value.results
-                            .filter { item -> !item.feedUrl.isNullOrEmpty() }
-                            .filter { item -> item.isFree() }
-                    binding.content.adapter = PodcastCardsAdapter(podcastList, viewModel)
-                    binding.notFound.visibility = GONE
-                }
+                val (podcastList, visibility) =
+                        if (podcasts.value.isEmpty()) listOf<Podcast>() to VISIBLE
+                        else podcasts.value.filter { !it.feedUrl.isNullOrEmpty() && it.isFree() } to GONE
+                binding.content.adapter = PodcastCardsAdapter(podcastList, viewModel)
+                binding.notFound.visibility = visibility
             }
             is Resource.Error -> {
                 Log.d(TAG, "error: ${podcasts.throwable.message}")
@@ -108,7 +104,7 @@ class SearchFragment : Fragment() {
     }
 
     interface FragmentInteractionListener {
-        fun removeSearchFragment()
+        fun onClickNavigateUp()
         fun addDetailFragment(fragment: Fragment)
     }
 }

@@ -8,4 +8,7 @@ import retrofit2.http.Query
 interface ITunesService {
     @GET("search?media=podcast")
     fun search(@Query("term") query: String): Deferred<ITunesResponse>
+
+    @GET("lookup")
+    fun lookup(@Query("id") id: Int): Deferred<ITunesResponse>
 }

@@ -15,6 +15,14 @@ class TopBarViewModel(context: Context) : ViewModel() {
     private val fontSizeWithNavigateUp = context.resources.getDimension(R.dimen.font_size_title_with_navigation)
     private val alphaScrollOffset = context.resources.getDimensionPixelSize(R.dimen.title_alpha_scroll_offset)
 
+    companion object {
+        @JvmStatic
+        @BindingAdapter("app:textSize")
+        fun TextView.setTitleSize(size: Float) {
+            textSize = size
+        }
+    }
+
     val title = ObservableField<String>()
     var shouldShowNavigateUp: Boolean = false
     var shouldShowSearchBar: Boolean = false
@@ -27,11 +35,6 @@ class TopBarViewModel(context: Context) : ViewModel() {
 
     val topBarTitleTextSize: Float
         get() = (if (shouldShowNavigateUp) fontSizeWithNavigateUp else fontSize) / density
-
-    @BindingAdapter("app:textSize")
-    fun TextView.setTitleSize(size: Float) {
-        textSize = size
-    }
 
     fun onScrollChanged(scrollOffset: Float) = titleAlpha.set(scrollOffset / alphaScrollOffset)
 }

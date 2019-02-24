@@ -19,6 +19,13 @@ class UrlLoadingImageView @JvmOverloads constructor(
 
     companion object {
         private val TAG = UrlLoadingImageView::class.java.simpleName
+
+        @JvmStatic
+        @BindingAdapter("imageUrl")
+        fun UrlLoadingImageView.setImageUrl(url: String?) {
+            Log.d("dbg", "set: $url")
+            url?.let { getArtworkFromNetwork(it) }
+        }
     }
 
     private val placeholder: Drawable by inject("placeholder")
@@ -66,11 +73,4 @@ class UrlLoadingImageView @JvmOverloads constructor(
 
         fun next() = if (nextIndex < urls.size) urls[nextIndex++] else null
     }
-
-    @Suppress("unused")
-    @BindingAdapter("imageUrl")
-    fun UrlLoadingImageView.setImageUrl(url: String?) {
-        url?.let { getArtworkFromNetwork(it) }
-    }
-
 }
