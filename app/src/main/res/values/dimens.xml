@@ -6,8 +6,8 @@
     <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_medium">16dp</dimen>
     <dimen name="margin_large">32dp</dimen>
+    <dimen name="panel_height">56dp</dimen>
     <dimen name="bottom_navigation_height">56dp</dimen>
-    <dimen name="bottom_panel_height">112dp</dimen>
     <dimen name="card_offset">4dp</dimen>
 
     <!-- FragmentTopBar -->

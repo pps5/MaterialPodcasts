@@ -5,18 +5,14 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.support.design.widget.BottomNavigationView
 import android.util.AttributeSet
-import android.view.View
-import android.view.ViewTreeObserver
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState.COLLAPSED
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState.EXPANDED
 import io.github.pps5.materialpodcasts.R
-import io.github.pps5.materialpodcasts.view.SheetCallbackMediator
+import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState
+import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.COLLAPSED
+import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.EXPANDED
 import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 
 
-class BottomNavigation : BottomNavigationView, KoinComponent {
+class BottomNavigation : BottomNavigationView, KoinComponent, SlidingPanel.OnSlideListener {
 
     companion object {
         private val TAG = BottomNavigation::class.java.simpleName
@@ -24,21 +20,14 @@ class BottomNavigation : BottomNavigationView, KoinComponent {
         private const val BUNDLE_KEY_SUPER_STATE = "superState"
     }
 
+    private var defaultTop = 0
+    private var shouldHandleSlideEvent = true
     private var oldState = COLLAPSED
-    private val callbackMediator: SheetCallbackMediator by inject()
-
-    private val onGlobalLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            viewTreeObserver.removeOnGlobalLayoutListener(this)
-            initializeCallback()
-        }
-    }
+    private val navigationHeight = resources.getDimensionPixelOffset(R.dimen.bottom_navigation_height)
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayoutListener)
-    }
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     override fun onSaveInstanceState(): Parcelable? {
         return Bundle().also {
@@ -55,20 +44,25 @@ class BottomNavigation : BottomNavigationView, KoinComponent {
         }
     }
 
-    private fun initializeCallback() {
-        val parentLayoutHeight = (parent as View).findViewById<View>(R.id.base_container).height
-        val originalHeight = resources.getDimension(R.dimen.bottom_navigation_height)
-        val originalTop = parentLayoutHeight - originalHeight
-        y = if (oldState == EXPANDED) parentLayoutHeight.toFloat() else originalTop
 
-        callbackMediator.setBottomNavCallback(object : SheetCallbackMediator.Callback {
-            override fun onSlide(slideOffset: Float) {
-                this@BottomNavigation.y = originalTop + (originalHeight * slideOffset)
-            }
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (defaultTop == 0) {
+            defaultTop = top
+            y = if (oldState == EXPANDED) (defaultTop + navigationHeight).toFloat() else defaultTop.toFloat()
+        }
 
-            override fun onStateChanged(newState: PanelState) {
-                oldState = newState
-            }
-        })
+    }
+
+    override fun onSlide(slideOffset: Float) {
+        if (shouldHandleSlideEvent) {
+            this@BottomNavigation.y = defaultTop + (navigationHeight * slideOffset)
+        }
+    }
+
+    override fun onStateChanged(newState: PanelState) {
+        if (shouldHandleSlideEvent) {
+            oldState = newState
+        }
     }
 }

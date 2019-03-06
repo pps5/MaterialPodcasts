@@ -82,9 +82,6 @@ dependencies {
         exclude module: "com.jakewharton.threetenabp:threetenabp:$threetenabp_version"
     }
 
-    // sliding up panel
-    implementation 'com.sothree.slidinguppanel:library:3.4.0'
-
     // picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
 
