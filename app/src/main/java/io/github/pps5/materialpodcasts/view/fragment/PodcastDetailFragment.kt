@@ -33,10 +33,10 @@ class PodcastDetailFragment : Fragment() {
         private const val ARGS_KEY_TITLE = "title"
         private const val ARGS_KEY_ARTWORK_URL = "artwork_url"
 
-        fun newInstance(collectionId: Int, feedUrl: String, title: String, artistName: String, artworkUrl: String) =
+        fun newInstance(collectionId: Long, feedUrl: String, title: String, artistName: String, artworkUrl: String) =
                 PodcastDetailFragment().also {
                     it.arguments = Bundle().also { b ->
-                        b.putInt(ARGS_KEY_COLLECTION_ID, collectionId)
+                        b.putLong(ARGS_KEY_COLLECTION_ID, collectionId)
                         b.putString(ARGS_KEY_FEED_URL, feedUrl)
                         b.putString(ARGS_KEY_TITLE, title)
                         b.putString(ARGS_KEY_ARTIST_NAME, artistName)
@@ -45,7 +45,7 @@ class PodcastDetailFragment : Fragment() {
                 }
     }
 
-    private val collectionId: Int by args(ARGS_KEY_COLLECTION_ID)
+    private val collectionId: Long by args(ARGS_KEY_COLLECTION_ID)
     private val feedUrl: String by args(ARGS_KEY_FEED_URL)
     private val title: String by args(ARGS_KEY_TITLE)
     private val artistName: String by args(ARGS_KEY_ARTIST_NAME)

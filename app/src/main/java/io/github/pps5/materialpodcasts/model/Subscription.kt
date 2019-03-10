@@ -8,7 +8,7 @@ import io.github.pps5.materialpodcasts.data.converter.PodcastConverter
 
 @Entity(tableName = "subscription")
 data class Subscription(
-    @PrimaryKey var collectionId: Int,
+    @PrimaryKey var collectionId: Long,
 
     @TypeConverters(PodcastConverter::class)
     var podcast: Podcast?,

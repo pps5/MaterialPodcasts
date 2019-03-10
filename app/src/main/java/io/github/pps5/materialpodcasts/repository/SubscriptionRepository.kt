@@ -34,7 +34,7 @@ class SubscriptionRepository : KoinComponent {
         return result
     }
 
-    fun addSubscription(collectionId: Int): MutableLiveData<Resource<Unit>> {
+    fun addSubscription(collectionId: Long): MutableLiveData<Resource<Unit>> {
         val result = MutableLiveData<Resource<Unit>>().also { it.postValue(Resource.loading()) }
         GlobalScope.launch {
             val subscriptionDAO = database.getSubscriptionDAO()
@@ -54,7 +54,7 @@ class SubscriptionRepository : KoinComponent {
         return result
     }
 
-    private suspend fun fetchFromNetwork(collectionId: Int): Pair<Podcast, Channel>? {
+    private suspend fun fetchFromNetwork(collectionId: Long): Pair<Podcast, Channel>? {
         val itunesResponse = iTunesService.lookup(collectionId).await()
         val isValidResponse = !itunesResponse.results.getOrNull(0)?.feedUrl.isNullOrEmpty()
         if (isValidResponse) {
@@ -64,7 +64,7 @@ class SubscriptionRepository : KoinComponent {
         return null
     }
 
-    fun removeSubscription(collectionId: Int) {
+    fun removeSubscription(collectionId: Long) {
         GlobalScope.launch {
             database.getSubscriptionDAO().delete(collectionId)
         }

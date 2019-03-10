@@ -14,7 +14,7 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
 class PodcastDetailViewModel(
-        val collectionId: Int,
+        val collectionId: Long,
         feedUrl: String,
         val title: String,
         val artistName: String,

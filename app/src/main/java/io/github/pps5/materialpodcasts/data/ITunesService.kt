@@ -10,5 +10,5 @@ interface ITunesService {
     fun search(@Query("term") query: String): Deferred<ITunesResponse>
 
     @GET("lookup")
-    fun lookup(@Query("id") id: Int): Deferred<ITunesResponse>
+    fun lookup(@Query("id") id: Long): Deferred<ITunesResponse>
 }

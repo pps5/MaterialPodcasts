@@ -19,7 +19,7 @@ class DetailRepository(
         private val TAG = DetailRepository::class.java.simpleName
     }
 
-    fun getDetail(collectionId: Int, feedUrl: String): MutableLiveData<Resource<Channel>> {
+    fun getDetail(collectionId: Long, feedUrl: String): MutableLiveData<Resource<Channel>> {
         val result = MutableLiveData<Resource<Channel>>().also { it.postValue(Resource.loading()) }
         val handler = CoroutineExceptionHandler { _, throwable ->
             Log.d(TAG, "Error on fetch detail: ${throwable.message}")

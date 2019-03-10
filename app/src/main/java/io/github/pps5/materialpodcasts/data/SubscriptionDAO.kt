@@ -11,17 +11,17 @@ import io.github.pps5.materialpodcasts.model.Track
 interface SubscriptionDAO {
 
     @Query("SELECT * FROM subscription WHERE collectionId = :collectionId")
-    fun find(collectionId: Int): Subscription?
+    fun find(collectionId: Long): Subscription?
 
     @Query("SELECT * FROM track WHERE collectionId = :collectionId")
-    fun findTracks(collectionId: Int): List<Track>
+    fun findTracks(collectionId: Long): List<Track>
 
     @Query("SELECT * FROM subscription")
     fun findAll(): List<Subscription>
 
     @Transaction
     @Query("DELETE FROM subscription WHERE collectionId = :collectionId")
-    fun delete(collectionId: Int)
+    fun delete(collectionId: Long)
 
     @Insert
     fun insert(track: List<Track>)
@@ -36,7 +36,7 @@ interface SubscriptionDAO {
     }
 
     @Transaction
-    fun findWithTracks(collectionId: Int): Subscription? {
+    fun findWithTracks(collectionId: Long): Subscription? {
         val subscription = find(collectionId)
         if (subscription?.channel == null) {
             return null

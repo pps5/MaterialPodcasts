@@ -14,8 +14,8 @@ import android.arch.persistence.room.PrimaryKey
 )
 data class Track(
     @PrimaryKey(autoGenerate = true)
-    var trackId: Int = 0,
-    var collectionId: Int = 0,
+    var trackId: Long = 0,
+    var collectionId: Long = 0,
     var guid: String? = null,
     var pubDate: String? = null,
     var title: String? = null,
