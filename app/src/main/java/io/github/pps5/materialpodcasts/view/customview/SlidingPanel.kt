@@ -1,9 +1,12 @@
 package io.github.pps5.materialpodcasts.view.customview
 
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.ViewDragHelper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -26,11 +29,13 @@ class SlidingPanel @JvmOverloads constructor(
     private var isFirstLayout = true
 
     private val viewDragHelper = ViewDragHelper.create(this, SENSITIVITY, Callback())
-    private lateinit var content: View
+    private lateinit var mainContent: View
+    private lateinit var panelContent: View
     var panelState: PanelState = COLLAPSED
         set(value) {
             if (field == value) return
             field = value
+            if (isFirstLayout) return
             onSlideListener?.onStateChanged(value)
             when (value) {
                 EXPANDED -> smoothSlideTo(1f)
@@ -55,11 +60,26 @@ class SlidingPanel @JvmOverloads constructor(
     private val collapsedTop
         get() = computePanelTop(0f)
 
+    override fun onSaveInstanceState(): Parcelable? {
+        val superState = super.onSaveInstanceState()
+        val savedState = SavedState(superState)
+        savedState.isExpanded = panelState == EXPANDED
+        return savedState
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val savedState = state as SavedState
+        super.onRestoreInstanceState(savedState.superState)
+        panelState = if (savedState.isExpanded) EXPANDED else COLLAPSED
+        requestLayout()
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        if (childCount != 1) {
-            throw IllegalStateException("SlidingPanel must have exactly 1 child")
+        if (childCount != 2) {
+            throw IllegalStateException("SlidingPanel must have exactly 2 children")
         }
         if (isFirstLayout) {
+            Log.d("dbg", "initialState: $panelState")
             slideOffset = when (panelState) {
                 EXPANDED -> 1f
                 COLLAPSED -> 0f
@@ -67,20 +87,20 @@ class SlidingPanel @JvmOverloads constructor(
             }
         }
         isFirstLayout = false
-        content = getChildAt(0)
+        mainContent = getChildAt(0)
+        panelContent = getChildAt(1)
         val (widthSize, heightSize) = MeasureSpec.getSize(widthMeasureSpec) to MeasureSpec.getSize(heightMeasureSpec)
         setMeasuredDimension(widthSize, heightSize)
-        content.measure(
-            MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY)
-        )
+        mainContent.measure(widthMeasureSpec, heightMeasureSpec)
+        panelContent.measure(widthMeasureSpec, heightMeasureSpec)
         slideRange = heightSize - panelHeight - currentNavHeight
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         computePanelTop(slideOffset).toInt().let {
-            content.layout(0, it, content.measuredWidth, it + measuredHeight)
+            panelContent.layout(0, it, panelContent.measuredWidth, it + measuredHeight)
         }
+        mainContent.layout(0, 0, measuredWidth, mainContent.measuredHeight)
     }
 
     private fun computePanelTop(targetSlideOffset: Float): Float {
@@ -92,7 +112,7 @@ class SlidingPanel @JvmOverloads constructor(
 
     private fun smoothSlideTo(slideOffset: Float) {
         val newTop = computePanelTop(slideOffset).toInt()
-        if (viewDragHelper.smoothSlideViewTo(content, 0, newTop)) {
+        if (viewDragHelper.smoothSlideViewTo(panelContent, 0, newTop)) {
             ViewCompat.postInvalidateOnAnimation(this)
         }
     }
@@ -110,17 +130,28 @@ class SlidingPanel @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        return when (ev?.actionMasked) {
+        if (computePanelTop(slideOffset) > ev!!.rawY) {
+            return false
+        }
+        return when (ev.actionMasked) {
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 viewDragHelper.cancel()
                 false
             }
-            else -> viewDragHelper.shouldInterceptTouchEvent(ev!!)
+            else -> viewDragHelper.shouldInterceptTouchEvent(ev)
+        }
+    }
+
+    fun changePeekHeight(changeHeight: Int) {
+        val newTop = computePanelTop(0f) + changeHeight
+        if (viewDragHelper.smoothSlideViewTo(panelContent, left, newTop.toInt())) {
+            panelState = PEEK_HEIGHT_CHANGING
+            postInvalidateOnAnimation()
         }
     }
 
     private inner class Callback : ViewDragHelper.Callback() {
-        override fun tryCaptureView(p0: View, p1: Int) = p0 === content && panelState != PEEK_HEIGHT_CHANGING
+        override fun tryCaptureView(p0: View, p1: Int) = p0 === panelContent && panelState != PEEK_HEIGHT_CHANGING
         override fun getViewVerticalDragRange(child: View) = slideRange
 
         override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
@@ -179,5 +210,35 @@ class SlidingPanel @JvmOverloads constructor(
 
     interface OnPeekHeightChangeListener {
         fun onChanged(offset: Float)
+    }
+
+    internal class SavedState : View.BaseSavedState {
+
+        var isExpanded: Boolean = false
+
+        constructor(`in`: Parcel) : super(`in`) {
+            isExpanded = `in`.readByte().toInt() == 1
+        }
+
+        @Suppress("unused")
+        constructor(superState: Parcelable) : super(superState)
+
+        override fun writeToParcel(out: Parcel?, flags: Int) {
+            super.writeToParcel(out, flags)
+            out?.writeInt(if (isExpanded) 1 else 0)
+        }
+
+        companion object {
+            @JvmField @Suppress("unused")
+            val CREATOR = object: Parcelable.Creator<SavedState> {
+                override fun createFromParcel(source: Parcel?): SavedState {
+                    return SavedState(source!!)
+                }
+
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
+                }
+            }
+        }
     }
 }
