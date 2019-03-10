@@ -143,7 +143,11 @@ class SlidingPanel @JvmOverloads constructor(
     }
 
     fun changePeekHeight(changeHeight: Int) {
-        val newTop = computePanelTop(0f) + changeHeight
+        val newTop = when {
+            panelState == PEEK_HEIGHT_CHANGING && changeHeight > 0 -> measuredHeight - panelHeight
+            panelState == PEEK_HEIGHT_CHANGING && changeHeight < 0 -> measuredHeight - panelHeight - bottomNavHeight
+            else -> computePanelTop(0f).toInt() + changeHeight
+        }
         if (viewDragHelper.smoothSlideViewTo(panelContent, left, newTop.toInt())) {
             panelState = PEEK_HEIGHT_CHANGING
             postInvalidateOnAnimation()
@@ -229,8 +233,9 @@ class SlidingPanel @JvmOverloads constructor(
         }
 
         companion object {
-            @JvmField @Suppress("unused")
-            val CREATOR = object: Parcelable.Creator<SavedState> {
+            @JvmField
+            @Suppress("unused")
+            val CREATOR = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel?): SavedState {
                     return SavedState(source!!)
                 }
