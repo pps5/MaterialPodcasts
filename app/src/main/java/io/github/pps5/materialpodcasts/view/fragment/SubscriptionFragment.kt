@@ -12,7 +12,7 @@ import io.github.pps5.materialpodcasts.extension.inflateBinding
 import io.github.pps5.materialpodcasts.extension.observeNonNull
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
-import io.github.pps5.materialpodcasts.view.MainActivity
+import io.github.pps5.materialpodcasts.view.Navigator
 import io.github.pps5.materialpodcasts.view.adapter.SubscriptionAdapter
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
@@ -26,6 +26,7 @@ class SubscriptionFragment : Fragment() {
         val TAG = SubscriptionFragment::class.java.simpleName
     }
 
+    private val navigator: Navigator by inject()
     private val viewModel: SubscriptionViewModel by inject()
     private lateinit var binding: FragmentSubscriptionBinding
 
@@ -51,12 +52,15 @@ class SubscriptionFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.podcasts.removeObservers(this)
+        viewModel.selectedPodcast.removeObservers(this)
+    }
+
     private fun onSelected(podcast: Podcast) {
-        (activity as? MainActivity)?.addDetailFragment(
-                PodcastDetailFragment.newInstance(podcast.collectionId, podcast.feedUrl!!,
-                        podcast.trackName, podcast.artistName, podcast.artworkBaseUrl)
-        )
-        // reset selection for re-observe on restored
+        navigator.navigateToPodcastDetail(podcast.collectionId, podcast.feedUrl!!,
+            podcast.trackName, podcast.artistName, podcast.artworkBaseUrl)
         viewModel.onSelected(null)
     }
 

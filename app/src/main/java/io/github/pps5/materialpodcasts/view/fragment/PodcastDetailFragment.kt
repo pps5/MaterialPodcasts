@@ -1,6 +1,5 @@
 package io.github.pps5.materialpodcasts.view.fragment
 
-import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_TEXT
@@ -34,15 +33,15 @@ class PodcastDetailFragment : Fragment() {
         private const val ARGS_KEY_ARTWORK_URL = "artwork_url"
 
         fun newInstance(collectionId: Long, feedUrl: String, title: String, artistName: String, artworkUrl: String) =
-                PodcastDetailFragment().also {
-                    it.arguments = Bundle().also { b ->
-                        b.putLong(ARGS_KEY_COLLECTION_ID, collectionId)
-                        b.putString(ARGS_KEY_FEED_URL, feedUrl)
-                        b.putString(ARGS_KEY_TITLE, title)
-                        b.putString(ARGS_KEY_ARTIST_NAME, artistName)
-                        b.putString(ARGS_KEY_ARTWORK_URL, artworkUrl)
-                    }
+            PodcastDetailFragment().also {
+                it.arguments = Bundle().also { b ->
+                    b.putLong(ARGS_KEY_COLLECTION_ID, collectionId)
+                    b.putString(ARGS_KEY_FEED_URL, feedUrl)
+                    b.putString(ARGS_KEY_TITLE, title)
+                    b.putString(ARGS_KEY_ARTIST_NAME, artistName)
+                    b.putString(ARGS_KEY_ARTWORK_URL, artworkUrl)
                 }
+            }
     }
 
     private val collectionId: Long by args(ARGS_KEY_COLLECTION_ID)
@@ -54,14 +53,13 @@ class PodcastDetailFragment : Fragment() {
         parametersOf(collectionId, feedUrl, title, artistName, artworkUrl)
     }
     private lateinit var binding: FragmentDetailBinding
-    private var listener: SearchFragment.FragmentInteractionListener? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_detail, container, false)
         binding.let {
             it.viewModel = viewModel
             it.setLifecycleOwner(this)
-            it.topBar.onClickNavigateUp = { listener?.onClickNavigateUp() }
+            it.topBar.onClickNavigateUp = { activity?.onBackPressed() }
         }
         setUpContentContainer()
         viewModel.channel.observe(this, ::onChangeLoadingState)
@@ -69,28 +67,16 @@ class PodcastDetailFragment : Fragment() {
         return binding.root
     }
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is SearchFragment.FragmentInteractionListener) {
-            listener = context
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
-    }
-
     private fun setUpContentContainer() =
-            binding.contentContainer.let {
-                it.addOnScrollListener(binding.topBar.scrollChangeListener)
-                it.layoutManager = LinearLayoutManager(context)
-                it.adapter = PodcastDetailAdapter(viewModel, this)
-            }
+        binding.contentContainer.let {
+            it.addOnScrollListener(binding.topBar.scrollChangeListener)
+            it.layoutManager = LinearLayoutManager(context)
+            it.adapter = PodcastDetailAdapter(viewModel, this)
+        }
 
     private fun onChangeLoadingState(state: Resource<Channel>?): Unit =
-            if (state is Resource.Loading) binding.progressBar.progressiveStart()
-            else binding.progressBar.progressiveStop()
+        if (state is Resource.Loading) binding.progressBar.progressiveStart()
+        else binding.progressBar.progressiveStop()
 
     private fun onClickShare(actionType: PodcastDetailAdapter.ActionType) {
         if (actionType == PodcastDetailAdapter.ActionType.SHARE) {

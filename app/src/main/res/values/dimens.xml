@@ -8,6 +8,8 @@
     <dimen name="margin_large">32dp</dimen>
     <dimen name="panel_height">56dp</dimen>
     <dimen name="bottom_navigation_height">56dp</dimen>
+    <dimen name="top_level_fragment_padding">112dp</dimen>
+    <dimen name="second_level_fragment_padding">56dp</dimen>
     <dimen name="card_offset">4dp</dimen>
 
     <!-- FragmentTopBar -->

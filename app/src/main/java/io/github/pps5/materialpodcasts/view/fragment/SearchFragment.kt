@@ -1,7 +1,6 @@
 package io.github.pps5.materialpodcasts.view.fragment
 
 import android.app.Activity
-import android.content.Context
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -21,6 +20,7 @@ import io.github.pps5.materialpodcasts.extension.observe
 import io.github.pps5.materialpodcasts.extension.observeNonNull
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.view.ItemOffsetDecoration
+import io.github.pps5.materialpodcasts.view.Navigator
 import io.github.pps5.materialpodcasts.view.adapter.PodcastCardsAdapter
 import io.github.pps5.materialpodcasts.view.viewmodel.SearchViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
@@ -32,7 +32,7 @@ class SearchFragment : Fragment() {
         val TAG = SearchFragment::class.java.simpleName
     }
 
-    private var listener: FragmentInteractionListener? = null
+    private val navigator: Navigator by inject()
     private lateinit var binding: FragmentSearchBinding
     private val viewModel: SearchViewModel by inject()
 
@@ -41,10 +41,8 @@ class SearchFragment : Fragment() {
         binding.let {
             it.setLifecycleOwner(this)
             it.viewModel = viewModel
-            if (activity is FragmentInteractionListener) {
-                it.topBar.onClickNavigateUp = { listener?.onClickNavigateUp() }
-                it.content.addOnScrollListener(binding.topBar.scrollChangeListener)
-            }
+            it.topBar.onClickNavigateUp = { activity?.onBackPressed() }
+            it.content.addOnScrollListener(binding.topBar.scrollChangeListener)
             it.content.layoutManager = GridLayoutManager(context, 2)
             it.content.addItemDecoration(ItemOffsetDecoration(context!!, R.dimen.card_offset))
         }
@@ -55,24 +53,9 @@ class SearchFragment : Fragment() {
         return binding.root
     }
 
-    fun showIme() = binding.topBar.showIme()
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is FragmentInteractionListener) {
-            listener = context
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
-    }
-
     private fun onClickPodcast(podcast: Podcast?) {
         podcast?.let {
-            listener?.addDetailFragment(PodcastDetailFragment.newInstance(
-                    it.collectionId, it.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl))
+            navigator.navigateToPodcastDetail(it.collectionId, it.feedUrl!!, it.trackName, it.artistName, it.artworkBaseUrl)
             viewModel.resetSelection()
         }
     }
@@ -83,8 +66,8 @@ class SearchFragment : Fragment() {
             }
             is Resource.Success -> {
                 val (podcastList, visibility) =
-                        if (podcasts.value.isEmpty()) listOf<Podcast>() to VISIBLE
-                        else podcasts.value.filter { !it.feedUrl.isNullOrEmpty() && it.isFree() } to GONE
+                    if (podcasts.value.isEmpty()) listOf<Podcast>() to VISIBLE
+                    else podcasts.value.filter { !it.feedUrl.isNullOrEmpty() && it.isFree() } to GONE
                 binding.content.adapter = PodcastCardsAdapter(podcastList, viewModel)
                 binding.notFound.visibility = visibility
             }
@@ -97,14 +80,12 @@ class SearchFragment : Fragment() {
 
     override fun onDestroyView() {
         (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)
-                ?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+            ?.hideSoftInputFromWindow(binding.root.windowToken, 0)
         binding.topBar.onClickNavigateUp = null
         viewModel.cancel()
+        viewModel.selectedPodcast.removeObservers(this)
+        viewModel.podcasts.removeObservers(this)
         super.onDestroyView()
     }
 
-    interface FragmentInteractionListener {
-        fun onClickNavigateUp()
-        fun addDetailFragment(fragment: Fragment)
-    }
 }

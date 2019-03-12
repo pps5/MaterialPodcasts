@@ -27,6 +27,8 @@ class SubscriptionViewModel : ViewModel(), KoinComponent, PodcastSelectListener 
     val selectedPodcast: LiveData<Podcast>
         get() = _selectedPodcast
     override fun onSelected(podcast: Podcast?) {
-        _selectedPodcast.postValue(podcast)
+        if (podcast != selectedPodcast.value) {
+            _selectedPodcast.postValue(podcast)
+        }
     }
 }
