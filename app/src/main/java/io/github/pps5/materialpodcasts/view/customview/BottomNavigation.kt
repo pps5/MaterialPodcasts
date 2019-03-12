@@ -12,18 +12,21 @@ import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.E
 import org.koin.standalone.KoinComponent
 
 
-class BottomNavigation : BottomNavigationView, KoinComponent, SlidingPanel.OnSlideListener {
+class BottomNavigation : BottomNavigationView, KoinComponent,
+    SlidingPanel.OnSlideListener, SlidingPanel.OnPeekHeightChangeListener {
+
 
     companion object {
         private val TAG = BottomNavigation::class.java.simpleName
         private const val BUNDLE_KEY_OLD_STATE = "old_state"
+        private const val BUNDLE_KEY_SHOULD_HANDLE_SLIDE_EVENT = "should_handle_slide_event"
         private const val BUNDLE_KEY_SUPER_STATE = "superState"
     }
 
     private var defaultTop = 0
     private var shouldHandleSlideEvent = true
     private var oldState = COLLAPSED
-    private val navigationHeight = resources.getDimensionPixelOffset(R.dimen.bottom_navigation_height)
+    val navigationHeight = resources.getDimensionPixelOffset(R.dimen.bottom_navigation_height)
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -32,6 +35,7 @@ class BottomNavigation : BottomNavigationView, KoinComponent, SlidingPanel.OnSli
     override fun onSaveInstanceState(): Parcelable? {
         return Bundle().also {
             it.putSerializable(BUNDLE_KEY_OLD_STATE, oldState)
+            it.putBoolean(BUNDLE_KEY_SHOULD_HANDLE_SLIDE_EVENT, shouldHandleSlideEvent)
             it.putParcelable(BUNDLE_KEY_SUPER_STATE, super.onSaveInstanceState())
         }
     }
@@ -40,6 +44,7 @@ class BottomNavigation : BottomNavigationView, KoinComponent, SlidingPanel.OnSli
         if (state is Bundle) {
             val superState = state.getParcelable<Parcelable>(BUNDLE_KEY_SUPER_STATE)
             oldState = state.getSerializable(BUNDLE_KEY_OLD_STATE) as PanelState? ?: COLLAPSED
+            shouldHandleSlideEvent = state.getBoolean(BUNDLE_KEY_SHOULD_HANDLE_SLIDE_EVENT, false)
             super.onRestoreInstanceState(superState)
         }
     }
@@ -49,9 +54,12 @@ class BottomNavigation : BottomNavigationView, KoinComponent, SlidingPanel.OnSli
         super.onLayout(changed, left, top, right, bottom)
         if (defaultTop == 0) {
             defaultTop = top
-            y = if (oldState == EXPANDED) (defaultTop + navigationHeight).toFloat() else defaultTop.toFloat()
+            y = when {
+                !shouldHandleSlideEvent /* this view is hidden on last state */
+                    || oldState == EXPANDED -> (defaultTop + navigationHeight).toFloat()
+                else -> defaultTop.toFloat()
+            }
         }
-
     }
 
     override fun onSlide(slideOffset: Float) {
@@ -64,5 +72,13 @@ class BottomNavigation : BottomNavigationView, KoinComponent, SlidingPanel.OnSli
         if (shouldHandleSlideEvent) {
             oldState = newState
         }
+    }
+
+    override fun onChanged(offset: Float) {
+        shouldHandleSlideEvent = when (offset) {
+            0f -> true
+            else -> false
+        }
+        y = defaultTop + (measuredHeight * offset)
     }
 }

@@ -64,6 +64,7 @@ class SlidingPanel @JvmOverloads constructor(
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         savedState.isExpanded = panelState == EXPANDED
+        savedState.lastBottomNavHeight = currentNavHeight
         return savedState
     }
 
@@ -71,6 +72,7 @@ class SlidingPanel @JvmOverloads constructor(
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         panelState = if (savedState.isExpanded) EXPANDED else COLLAPSED
+        currentNavHeight = savedState.lastBottomNavHeight
         requestLayout()
     }
 
@@ -148,7 +150,7 @@ class SlidingPanel @JvmOverloads constructor(
             panelState == PEEK_HEIGHT_CHANGING && changeHeight < 0 -> measuredHeight - panelHeight - bottomNavHeight
             else -> computePanelTop(0f).toInt() + changeHeight
         }
-        if (viewDragHelper.smoothSlideViewTo(panelContent, left, newTop.toInt())) {
+        if (viewDragHelper.smoothSlideViewTo(panelContent, left, newTop)) {
             panelState = PEEK_HEIGHT_CHANGING
             postInvalidateOnAnimation()
         }
@@ -219,9 +221,11 @@ class SlidingPanel @JvmOverloads constructor(
     internal class SavedState : View.BaseSavedState {
 
         var isExpanded: Boolean = false
+        var lastBottomNavHeight: Int = 0
 
         constructor(`in`: Parcel) : super(`in`) {
             isExpanded = `in`.readByte().toInt() == 1
+            lastBottomNavHeight = `in`.readInt()
         }
 
         @Suppress("unused")
@@ -230,6 +234,7 @@ class SlidingPanel @JvmOverloads constructor(
         override fun writeToParcel(out: Parcel?, flags: Int) {
             super.writeToParcel(out, flags)
             out?.writeInt(if (isExpanded) 1 else 0)
+            out?.writeInt(lastBottomNavHeight)
         }
 
         companion object {
