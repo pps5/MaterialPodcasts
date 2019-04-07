@@ -7,8 +7,12 @@ import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.vo.Resource
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-class SearchRepository(private val itunesService: ITunesService) : BaseRepository() {
+class SearchRepository : BaseRepository(), KoinComponent {
+
+    private val itunesService: ITunesService by inject()
 
     fun search(query: String): LiveData<Resource<List<Podcast>>> {
         cancel()

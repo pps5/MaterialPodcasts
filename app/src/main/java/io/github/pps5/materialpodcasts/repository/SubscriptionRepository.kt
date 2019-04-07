@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import io.github.pps5.materialpodcasts.data.AppDatabase
 import io.github.pps5.materialpodcasts.data.FeedsService
 import io.github.pps5.materialpodcasts.data.ITunesService
+import io.github.pps5.materialpodcasts.di.APP_DB
 import io.github.pps5.materialpodcasts.model.Channel
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.model.Subscription
@@ -18,7 +19,7 @@ class SubscriptionRepository : KoinComponent {
 
     private val iTunesService: ITunesService by inject()
     private val feedsService: FeedsService by inject()
-    private val database: AppDatabase by inject()
+    private val database: AppDatabase by inject(APP_DB)
 
     fun getSubscription(): LiveData<Resource<List<Podcast>>> {
         val result = MutableLiveData<Resource<List<Podcast>>>().also { it.postValue(Resource.loading()) }

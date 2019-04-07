@@ -6,7 +6,7 @@ import io.github.pps5.materialpodcasts.repository.SubscriptionRepository
 import org.koin.dsl.module.module
 
 val repositoryModule = module {
-    single { SearchRepository(get()) }
-    single { DetailRepository(get(), get()) }
+    single { SearchRepository() }
+    single { DetailRepository() }
     single { SubscriptionRepository() }
 }

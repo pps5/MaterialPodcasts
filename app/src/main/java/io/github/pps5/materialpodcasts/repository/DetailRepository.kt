@@ -4,20 +4,23 @@ import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import io.github.pps5.materialpodcasts.data.AppDatabase
 import io.github.pps5.materialpodcasts.data.FeedsService
+import io.github.pps5.materialpodcasts.di.APP_DB
 import io.github.pps5.materialpodcasts.model.Channel
 import io.github.pps5.materialpodcasts.vo.Resource
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.inject
 
-class DetailRepository(
-    private val feedsService: FeedsService,
-    private val database: AppDatabase
-) : BaseRepository() {
+class DetailRepository : BaseRepository(), KoinComponent {
 
     companion object {
         private val TAG = DetailRepository::class.java.simpleName
     }
+
+    private val feedsService: FeedsService by inject()
+    private val database: AppDatabase by inject(APP_DB)
 
     fun getDetail(collectionId: Long, feedUrl: String): MutableLiveData<Resource<Channel>> {
         val result = MutableLiveData<Resource<Channel>>().also { it.postValue(Resource.loading()) }
