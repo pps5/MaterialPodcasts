@@ -1,6 +1,20 @@
 package io.github.pps5.materialpodcasts.model
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.ForeignKey
+import android.arch.persistence.room.PrimaryKey
+
+@Entity(tableName = "podcast",
+    foreignKeys = [ForeignKey(
+        entity = Subscription::class,
+        parentColumns = arrayOf("collectionId"),
+        childColumns = arrayOf("collectionId"),
+        onDelete = ForeignKey.CASCADE
+    )]
+)
+
 data class Podcast(
+    @PrimaryKey(autoGenerate = true) var podcastId: Int = 0,
     var collectionId: Long = 0,
     var trackCount: Int = 0,
     var artistName: String = "",

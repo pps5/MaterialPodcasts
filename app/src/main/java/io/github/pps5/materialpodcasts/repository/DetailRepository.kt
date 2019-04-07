@@ -26,17 +26,26 @@ class DetailRepository(
             result.postValue(Resource.error(throwable))
         }
         job = GlobalScope.launch(handler) {
-            val dbResult = database.getSubscriptionDAO().findWithTracks(collectionId)
-            if (dbResult?.channel?.tracks.isNullOrEmpty()) {
+            val channel = findChannelAndTracks(collectionId)
+            if (channel == null) {
                 Log.d(TAG, "cache miss, fetch from network")
                 val response = feedsService.getFeeds(feedUrl).await()
                 result.postValue(Resource.success(response))
             } else {
                 Log.d(TAG, "fetch from db")
-                result.postValue(Resource.success(dbResult!!.channel!!))
+                result.postValue(Resource.success(channel))
             }
         }
         return result
+    }
+
+    private fun findChannelAndTracks(collectionId: Long): Channel? {
+        val channel = database.getChannelDAO().find(collectionId)
+        val tracks = database.getTrackDAO().find(collectionId)
+        return if (channel != null && tracks.isNotEmpty())
+            channel.also { it.tracks = tracks }
+        else
+            null
     }
 
 }

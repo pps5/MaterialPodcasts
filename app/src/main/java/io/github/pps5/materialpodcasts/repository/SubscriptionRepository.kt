@@ -24,8 +24,7 @@ class SubscriptionRepository : KoinComponent {
         val result = MutableLiveData<Resource<List<Podcast>>>().also { it.postValue(Resource.loading()) }
         GlobalScope.launch {
             try {
-                val podcasts = database.getSubscriptionDAO().findAll().mapNotNull { it.podcast }
-                result.postValue(Resource.success(podcasts))
+                result.postValue(Resource.success(database.getPodcastDAO().findAll()))
             } catch (e: Exception) {
                 e.printStackTrace()
                 result.postValue(Resource.error(e))
@@ -43,15 +42,26 @@ class SubscriptionRepository : KoinComponent {
                 if (pair == null || pair.second.tracks.isNullOrEmpty()) {
                     result.postValue(Resource.error(IllegalStateException("Not found podcast")))
                 } else {
-                    val newSubscription = Subscription(collectionId, pair.first, pair.second)
-                    val tracks = pair.second.tracks!!.map { it.collectionId = collectionId; it }
-                    subscriptionDAO.insertSubscription(newSubscription, tracks)
+                    insertSubscription(collectionId, pair.first, pair.second)
+                    result.postValue(Resource.success(Unit))
                 }
             } else {
                 result.postValue(Resource.error(IllegalStateException("Already registered")))
             }
         }
         return result
+    }
+
+    private fun insertSubscription(collectionId: Long, podcast: Podcast, channel: Channel) {
+        val tracks = channel.tracks!!.map { it.collectionId = collectionId; it }
+        with (database) {
+            runInTransaction {
+                getSubscriptionDAO().insert(Subscription(collectionId))
+                getPodcastDAO().insert(podcast)
+                getChannelDAO().insert(channel.also { it.collectionId = collectionId })
+                getTrackDAO().insertAll(tracks)
+            }
+        }
     }
 
     private suspend fun fetchFromNetwork(collectionId: Long): Pair<Podcast, Channel>? {
