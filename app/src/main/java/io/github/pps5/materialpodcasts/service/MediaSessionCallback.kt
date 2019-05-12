@@ -14,6 +14,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import android.view.KeyEvent
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
@@ -29,6 +30,8 @@ class MediaSessionCallback(
 
     companion object {
         const val BUNDLE_KEY_DESCRIPTION = "description"
+        private const val REWIND_DURATION_IN_MILLIS = 10_000L
+        private const val FASTFORWARD_DURATION_IN_MILLIS = 10_000L
     }
 
     private var audioFocusRequest: AudioFocusRequest? = null
@@ -77,7 +80,20 @@ class MediaSessionCallback(
         abandonAudioFocus()
     }
 
-    override fun onSeekTo(pos: Long) = exoPlayer.seekTo(pos)
+    override fun onSeekTo(pos: Long) {
+        exoPlayer.seekTo(pos)
+        val duration = exoPlayer.duration
+        when {
+            duration == C.TIME_UNSET -> {
+            }
+            pos < 0 -> exoPlayer.seekTo(0L)
+            pos > duration -> exoPlayer.seekTo(duration)
+            else -> exoPlayer.seekTo(pos)
+        }
+    }
+
+    override fun onRewind() = onSeekTo(exoPlayer.currentPosition - REWIND_DURATION_IN_MILLIS)
+    override fun onFastForward() = onSeekTo(exoPlayer.currentPosition + FASTFORWARD_DURATION_IN_MILLIS)
 
     private fun abandonAudioFocus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -98,6 +114,8 @@ class MediaSessionCallback(
             KeyEvent.KEYCODE_MEDIA_PLAY -> onPlay()
             KeyEvent.KEYCODE_MEDIA_PAUSE -> onPause()
             KeyEvent.KEYCODE_MEDIA_STOP -> onStop()
+            KeyEvent.KEYCODE_MEDIA_REWIND -> onRewind()
+            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> onFastForward()
             else -> return false
         }
         return true
