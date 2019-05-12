@@ -19,4 +19,11 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getPodcastDAO(): PodcastDAO
     abstract fun getChannelDAO(): ChannelDAO
     abstract fun getTrackDAO(): TrackDAO
+
+    inline fun withTransaction(function: AppDatabase.() -> Unit) {
+        beginTransaction()
+        function(this)
+        setTransactionSuccessful()
+        endTransaction()
+    }
 }

@@ -16,6 +16,7 @@ import io.github.pps5.materialpodcasts.vo.Resource
 
 class PodcastDetailAdapter(
     private val viewModel: PodcastDetailViewModel,
+    private val trackSelectListener: TrackSelectListener,
     lifecycleOwner: LifecycleOwner
 ) : MultipleTypeAdapter() {
 
@@ -65,7 +66,8 @@ class PodcastDetailAdapter(
 
     private inner class TrackViewHolder(val binding: ListItemTrackBinding) : BaseViewHolder(binding) {
         override fun bind(position: Int) {
-            binding.item = trackList[position - 1]
+            binding.item = trackList[position - 3]
+            binding.trackSelectListener = trackSelectListener
         }
     }
 
@@ -91,5 +93,9 @@ class PodcastDetailAdapter(
     enum class ActionType { SUBSCRIBE, DOWNLOAD, SHARE }
     interface ActionClickListener {
         fun onActionClicked(type: ActionType)
+    }
+
+    interface TrackSelectListener {
+        fun onSelect(track: Track)
     }
 }

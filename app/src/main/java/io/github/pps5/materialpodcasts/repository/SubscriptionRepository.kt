@@ -3,12 +3,12 @@ package io.github.pps5.materialpodcasts.repository
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import io.github.pps5.materialpodcasts.data.AppDatabase
-import io.github.pps5.materialpodcasts.data.FeedsService
-import io.github.pps5.materialpodcasts.data.ITunesService
 import io.github.pps5.materialpodcasts.di.APP_DB
+import io.github.pps5.materialpodcasts.di.CACHE_DB
 import io.github.pps5.materialpodcasts.model.Channel
 import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.model.Subscription
+import io.github.pps5.materialpodcasts.model.Track
 import io.github.pps5.materialpodcasts.vo.Resource
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -17,9 +17,8 @@ import org.koin.standalone.inject
 
 class SubscriptionRepository : KoinComponent {
 
-    private val iTunesService: ITunesService by inject()
-    private val feedsService: FeedsService by inject()
     private val database: AppDatabase by inject(APP_DB)
+    private val cacheDatabase: AppDatabase by inject(CACHE_DB)
 
     fun getSubscription(): LiveData<Resource<List<Podcast>>> {
         val result = MutableLiveData<Resource<List<Podcast>>>().also { it.postValue(Resource.loading()) }
@@ -37,47 +36,44 @@ class SubscriptionRepository : KoinComponent {
     fun addSubscription(collectionId: Long): MutableLiveData<Resource<Unit>> {
         val result = MutableLiveData<Resource<Unit>>().also { it.postValue(Resource.loading()) }
         GlobalScope.launch {
-            val subscriptionDAO = database.getSubscriptionDAO()
-            if (subscriptionDAO.find(collectionId) == null) {
-                val pair = fetchFromNetwork(collectionId)
-                if (pair == null || pair.second.tracks.isNullOrEmpty()) {
-                    result.postValue(Resource.error(IllegalStateException("Not found podcast")))
-                } else {
-                    insertSubscription(collectionId, pair.first, pair.second)
-                    result.postValue(Resource.success(Unit))
-                }
-            } else {
+            val existsSubscription = database.getSubscriptionDAO().find(collectionId) != null
+            if (existsSubscription) {
                 result.postValue(Resource.error(IllegalStateException("Already registered")))
+                return@launch
+            }
+            val podcast = cacheDatabase.getPodcastDAO().find(collectionId)
+            val channel = cacheDatabase.getChannelDAO().find(collectionId)
+            val tracks = cacheDatabase.getTrackDAO().find(collectionId)
+            if (podcast == null || channel == null || tracks.isEmpty()) {
+                result.postValue(Resource.error(IllegalStateException("Not found podcast")))
+            } else {
+                resetIds(podcast, channel, tracks)
+                insertSubscription(collectionId, podcast, channel, tracks)
+                result.postValue(Resource.success(Unit))
             }
         }
         return result
     }
 
-    private fun insertSubscription(collectionId: Long, podcast: Podcast, channel: Channel) {
-        val tracks = channel.tracks!!.map { it.collectionId = collectionId; it }
-        with (database) {
-            runInTransaction {
-                getSubscriptionDAO().insert(Subscription(collectionId))
-                getPodcastDAO().insert(podcast)
-                getChannelDAO().insert(channel.also { it.collectionId = collectionId })
-                getTrackDAO().insertAll(tracks)
-            }
+    private fun resetIds(podcast: Podcast, channel: Channel, tracks: List<Track>) {
+        podcast.podcastId = 0
+        channel.channelId = 0
+        tracks.forEach { it.trackId = 0 }
+    }
+
+    private fun insertSubscription(
+        collectionId: Long,
+        podcast: Podcast,
+        channel: Channel,
+        tracks: List<Track>
+    ) {
+        channel.setCollectionIdAndTrackNumber(collectionId)
+        database.withTransaction {
+            getSubscriptionDAO().insert(Subscription(collectionId))
+            getPodcastDAO().insert(podcast)
+            getChannelDAO().insert(channel)
+            getTrackDAO().insertAll(tracks)
         }
     }
 
-    private suspend fun fetchFromNetwork(collectionId: Long): Pair<Podcast, Channel>? {
-        val itunesResponse = iTunesService.lookup(collectionId).await()
-        val isValidResponse = !itunesResponse.results.getOrNull(0)?.feedUrl.isNullOrEmpty()
-        if (isValidResponse) {
-            val channel = feedsService.getFeeds(itunesResponse.results[0].feedUrl!!).await()
-            return itunesResponse.results[0] to channel
-        }
-        return null
-    }
-
-    fun removeSubscription(collectionId: Long) {
-        GlobalScope.launch {
-            database.getSubscriptionDAO().delete(collectionId)
-        }
-    }
 }

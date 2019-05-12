@@ -71,7 +71,8 @@ class PodcastDetailFragment : Fragment() {
         binding.contentContainer.let {
             it.addOnScrollListener(binding.topBar.scrollChangeListener)
             it.layoutManager = LinearLayoutManager(context)
-            it.adapter = PodcastDetailAdapter(viewModel, this)
+            it.adapter = PodcastDetailAdapter(viewModel,
+                activity as PodcastDetailAdapter.TrackSelectListener, this)
         }
 
     private fun onChangeLoadingState(state: Resource<Channel>?): Unit =

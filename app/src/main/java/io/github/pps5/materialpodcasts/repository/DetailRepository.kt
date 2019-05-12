@@ -5,6 +5,7 @@ import android.util.Log
 import io.github.pps5.materialpodcasts.data.AppDatabase
 import io.github.pps5.materialpodcasts.data.FeedsService
 import io.github.pps5.materialpodcasts.di.APP_DB
+import io.github.pps5.materialpodcasts.di.CACHE_DB
 import io.github.pps5.materialpodcasts.model.Channel
 import io.github.pps5.materialpodcasts.vo.Resource
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -21,6 +22,7 @@ class DetailRepository : BaseRepository(), KoinComponent {
 
     private val feedsService: FeedsService by inject()
     private val database: AppDatabase by inject(APP_DB)
+    private val cacheDatabase: AppDatabase by inject(CACHE_DB)
 
     fun getDetail(collectionId: Long, feedUrl: String): MutableLiveData<Resource<Channel>> {
         val result = MutableLiveData<Resource<Channel>>().also { it.postValue(Resource.loading()) }
@@ -33,6 +35,8 @@ class DetailRepository : BaseRepository(), KoinComponent {
             if (channel == null) {
                 Log.d(TAG, "cache miss, fetch from network")
                 val response = feedsService.getFeeds(feedUrl).await()
+                response.setCollectionIdAndTrackNumber(collectionId)
+                cacheDetail(collectionId, response)
                 result.postValue(Resource.success(response))
             } else {
                 Log.d(TAG, "fetch from db")
@@ -49,6 +53,17 @@ class DetailRepository : BaseRepository(), KoinComponent {
             channel.also { it.tracks = tracks }
         else
             null
+    }
+
+    private fun cacheDetail(collectionId: Long, channel: Channel) {
+        val existsSubscription = cacheDatabase.getSubscriptionDAO().find(collectionId) != null
+        val hasTracks = !channel.tracks.isNullOrEmpty()
+        if (existsSubscription && hasTracks) {
+            cacheDatabase.withTransaction {
+                getChannelDAO().insert(channel)
+                getTrackDAO().insertAll(channel.tracks!!)
+            }
+        }
     }
 
 }

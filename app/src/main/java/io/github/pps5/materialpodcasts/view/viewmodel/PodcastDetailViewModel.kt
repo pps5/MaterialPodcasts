@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import io.github.pps5.materialpodcasts.extension.map
 import io.github.pps5.materialpodcasts.model.Channel
+import io.github.pps5.materialpodcasts.model.Track
 import io.github.pps5.materialpodcasts.repository.DetailRepository
 import io.github.pps5.materialpodcasts.repository.SubscriptionRepository
 import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter
@@ -19,7 +20,7 @@ class PodcastDetailViewModel(
         val title: String,
         val artistName: String,
         val artworkBaseUrl: String
-) : ViewModel(), KoinComponent, PodcastDetailAdapter.ActionClickListener {
+) : ViewModel(), KoinComponent, PodcastDetailAdapter.ActionClickListener, PodcastDetailAdapter.TrackSelectListener {
 
     private val detailRepository: DetailRepository by inject()
     private val subscriptionRepository: SubscriptionRepository by inject()
@@ -46,4 +47,8 @@ class PodcastDetailViewModel(
     }
 
     override fun onActionClicked(type: ActionType) = _actionType.postValue(type)
+
+    override fun onSelect(track: Track) {
+
+    }
 }

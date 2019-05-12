@@ -1,21 +1,29 @@
 package io.github.pps5.materialpodcasts.view
 
+import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ActivityMainBinding
 import io.github.pps5.materialpodcasts.di.ACTIVITY_SCOPE
+import io.github.pps5.materialpodcasts.model.Track
+import io.github.pps5.materialpodcasts.service.MediaSubscriber
+import io.github.pps5.materialpodcasts.service.MediaService
+import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.COLLAPSED
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.PEEK_HEIGHT_CHANGING
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.getKoin
 import org.koin.core.parameter.parametersOf
 
-class MainActivity : AppCompatActivity(), Navigator.InteractionListener {
+class MainActivity : AppCompatActivity(),
+    Navigator.InteractionListener,
+    PodcastDetailAdapter.TrackSelectListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var topLevelNavigator: Navigator
+    private val mediaSubscriber by lazy { MediaSubscriber(this) }
 
     override fun onBackPressed() {
         when {
@@ -34,20 +42,27 @@ class MainActivity : AppCompatActivity(), Navigator.InteractionListener {
         binding.slidingUpPanel.onChangeListener = binding.navigation
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         getKoin().getOrCreateScope(ACTIVITY_SCOPE)
         topLevelNavigator = get { parametersOf(supportFragmentManager, this) }
         binding.navigation.setOnNavigationItemSelectedListener(topLevelNavigator)
+        startService(Intent(this, MediaService::class.java))
+        mediaSubscriber.connect()
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         getKoin().scopeRegistry.getScope(ACTIVITY_SCOPE)?.close()
+        mediaSubscriber.disconnect()
     }
 
     override fun hideBottomNavigation() = binding.slidingUpPanel.changePeekHeight(+binding.navigation.navigationHeight)
     override fun showBottomNavigation() = binding.slidingUpPanel.changePeekHeight(-binding.navigation.navigationHeight)
     override fun shouldHandleNavigationClick() = binding.slidingUpPanel.panelState != PEEK_HEIGHT_CHANGING
+
+    override fun onSelect(track: Track) {
+        mediaSubscriber.subscribe("${track.collectionId}/${track.trackNumber}")
+    }
 
 }

@@ -4,10 +4,7 @@ import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Transaction
-import io.github.pps5.materialpodcasts.model.Channel
-import io.github.pps5.materialpodcasts.model.Podcast
 import io.github.pps5.materialpodcasts.model.Subscription
-import io.github.pps5.materialpodcasts.model.Track
 
 @Dao
 interface SubscriptionDAO {
@@ -25,8 +22,7 @@ interface SubscriptionDAO {
     @Insert
     fun insert(subscription: Subscription)
 
-    @Transaction
-    fun insertSubscription(collectionId: Long, podcast: Podcast, channel: Channel, tracks: List<Track>) {
+    @Query("DELETE FROM subscription")
+    fun deleteAll()
 
-    }
 }

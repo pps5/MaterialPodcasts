@@ -14,4 +14,8 @@ interface TrackDAO {
     @Query("SELECT * FROM track WHERE collectionId = :collectionId")
     fun find(collectionId: Long): List<Track>
 
+    @Query("""SELECT * FROM track
+        WHERE collectionId = :collectionId AND trackNumber = :trackNumber""")
+    fun find(collectionId: Long, trackNumber: Int): Track?
+
 }

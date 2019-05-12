@@ -21,4 +21,13 @@ data class Channel(
     var link: String? = null,
     var language: String? = null,
     @Transient var tracks: List<Track>? = null
-)
+) {
+
+    fun setCollectionIdAndTrackNumber(collectionId: Long) {
+        this.collectionId = collectionId
+        tracks?.forEachIndexed { index, track ->
+            track.collectionId = collectionId
+            track.trackNumber = index
+        }
+    }
+}
