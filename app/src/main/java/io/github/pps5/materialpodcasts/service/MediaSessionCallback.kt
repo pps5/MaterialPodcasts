@@ -95,20 +95,12 @@ class MediaSessionCallback(
         }
         Log.d("dbg", "keyCode: ${keyEvent.keyCode}")
         when (keyEvent.keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY -> {
-                onPlay()
-                return true
-            }
-            KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                onPause()
-                return true
-            }
-            KeyEvent.KEYCODE_MEDIA_STOP -> {
-                onStop()
-                return true
-            }
+            KeyEvent.KEYCODE_MEDIA_PLAY -> onPlay()
+            KeyEvent.KEYCODE_MEDIA_PAUSE -> onPause()
+            KeyEvent.KEYCODE_MEDIA_STOP -> onStop()
+            else -> return false
         }
-        return false
+        return true
     }
 
     @Suppress("deprecation")
