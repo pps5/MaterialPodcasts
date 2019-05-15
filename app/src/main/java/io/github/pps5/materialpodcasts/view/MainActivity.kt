@@ -18,7 +18,6 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity(),
-    Navigator.InteractionListener,
     PodcastDetailAdapter.TrackSelectListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -45,7 +44,7 @@ class MainActivity : AppCompatActivity(),
     override fun onStart() {
         super.onStart()
         getKoin().getOrCreateScope(ACTIVITY_SCOPE)
-        topLevelNavigator = get { parametersOf(supportFragmentManager, this) }
+        topLevelNavigator = get { parametersOf(supportFragmentManager, binding.slidingUpPanel) }
         binding.navigation.setOnNavigationItemSelectedListener(topLevelNavigator)
         startService(Intent(this, MediaService::class.java))
         mediaSubscriber.connect()
@@ -56,10 +55,6 @@ class MainActivity : AppCompatActivity(),
         getKoin().scopeRegistry.getScope(ACTIVITY_SCOPE)?.close()
         mediaSubscriber.disconnect()
     }
-
-    override fun hideBottomNavigation() = binding.slidingUpPanel.changePeekHeight(+binding.navigation.navigationHeight)
-    override fun showBottomNavigation() = binding.slidingUpPanel.changePeekHeight(-binding.navigation.navigationHeight)
-    override fun shouldHandleNavigationClick() = binding.slidingUpPanel.panelState != PEEK_HEIGHT_CHANGING
 
     override fun onSelect(track: Track) {
         mediaSubscriber.subscribe("${track.collectionId}/${track.trackNumber}")

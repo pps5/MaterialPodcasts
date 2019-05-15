@@ -6,11 +6,11 @@ import android.os.Parcelable
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.ViewDragHelper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import io.github.pps5.materialpodcasts.R
+import io.github.pps5.materialpodcasts.view.Navigator
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.*
 import kotlin.math.max
 import kotlin.math.min
@@ -20,7 +20,7 @@ private const val SENSITIVITY = 1f
 class SlidingPanel @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
-) : ViewGroup(context, attributeSet) {
+) : ViewGroup(context, attributeSet), Navigator.InteractionListener {
 
     enum class PanelState {
         EXPANDED, COLLAPSED, PEEK_HEIGHT_CHANGING
@@ -81,7 +81,6 @@ class SlidingPanel @JvmOverloads constructor(
             throw IllegalStateException("SlidingPanel must have exactly 2 children")
         }
         if (isFirstLayout) {
-            Log.d("dbg", "initialState: $panelState")
             slideOffset = when (panelState) {
                 EXPANDED -> 1f
                 COLLAPSED -> 0f
@@ -144,7 +143,11 @@ class SlidingPanel @JvmOverloads constructor(
         }
     }
 
-    fun changePeekHeight(changeHeight: Int) {
+    override fun showBottomNavigation() = changePeekHeight(-bottomNavHeight)
+    override fun hideBottomNavigation() = changePeekHeight(+bottomNavHeight)
+    override fun shouldHandleNavigationClick() = panelState != PEEK_HEIGHT_CHANGING
+
+    private fun changePeekHeight(changeHeight: Int) {
         val newTop = when {
             panelState == PEEK_HEIGHT_CHANGING && changeHeight > 0 -> measuredHeight - panelHeight
             panelState == PEEK_HEIGHT_CHANGING && changeHeight < 0 -> measuredHeight - panelHeight - bottomNavHeight
