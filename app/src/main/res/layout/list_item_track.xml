@@ -8,6 +8,10 @@
             type="io.github.pps5.materialpodcasts.model.Track" />
 
         <variable
+            name="pubDate"
+            type="String" />
+
+        <variable
             name="trackSelectListener"
             type="io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter.TrackSelectListener" />
 
@@ -43,11 +47,11 @@
             android:id="@+id/publish_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{item.pubDate}"
+            android:text="@{pubDate}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/track_name"
-            tools:text="2019年1月20日" />
+            tools:text="2019/1/20" />
 
         <TextView
             android:id="@+id/separator"

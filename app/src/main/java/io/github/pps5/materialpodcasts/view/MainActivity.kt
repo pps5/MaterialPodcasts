@@ -4,6 +4,7 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ActivityMainBinding
 import io.github.pps5.materialpodcasts.di.ACTIVITY_SCOPE
@@ -20,6 +21,10 @@ import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity(),
     PodcastDetailAdapter.TrackSelectListener {
+
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
+    }
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var topLevelNavigator: Navigator
@@ -58,6 +63,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onSelect(track: Track) {
+        Log.d(TAG, "onSelect: $track")
         mediaSubscriber.subscribe("${track.collectionId}/${track.trackNumber}")
     }
 
