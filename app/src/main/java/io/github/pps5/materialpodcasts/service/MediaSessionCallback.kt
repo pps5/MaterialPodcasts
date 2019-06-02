@@ -56,6 +56,10 @@ class MediaSessionCallback(
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
             .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title.toString())
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, subtitle.toString())
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title.toString())
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subtitle.toString())
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, description.toString())
             .build()
 
     @Deprecated("Use onPlayFromMediaId")

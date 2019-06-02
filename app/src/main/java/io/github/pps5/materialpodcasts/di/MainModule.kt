@@ -1,11 +1,13 @@
 package io.github.pps5.materialpodcasts.di
 
 import android.support.v4.app.FragmentManager
+import io.github.pps5.materialpodcasts.service.MediaSubscriber
 import io.github.pps5.materialpodcasts.view.Navigator
 import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import io.github.pps5.materialpodcasts.view.viewmodel.SearchViewModel
 import io.github.pps5.materialpodcasts.view.viewmodel.SubscriptionViewModel
 import io.github.pps5.materialpodcasts.view.viewmodel.TopBarViewModel
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.module
 
@@ -14,6 +16,7 @@ val mainModule = module {
     scope(ACTIVITY_SCOPE) { (fm: FragmentManager, listener: Navigator.InteractionListener) ->
         Navigator(fm, listener)
     }
+    single { MediaSubscriber(androidApplication()) }
     viewModel { TopBarViewModel(get()) }
     viewModel { SearchViewModel() }
     viewModel { (collectionId: Long, feedUrl: String, title: String,

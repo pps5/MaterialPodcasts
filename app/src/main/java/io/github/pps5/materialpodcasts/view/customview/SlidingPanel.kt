@@ -30,7 +30,7 @@ class SlidingPanel @JvmOverloads constructor(
 
     private val viewDragHelper = ViewDragHelper.create(this, SENSITIVITY, Callback())
     private lateinit var mainContent: View
-    private lateinit var panelContent: View
+    private lateinit var panelContent: PlayingView
     var panelState: PanelState = COLLAPSED
         set(value) {
             if (field == value) return
@@ -89,7 +89,8 @@ class SlidingPanel @JvmOverloads constructor(
         }
         isFirstLayout = false
         mainContent = getChildAt(0)
-        panelContent = getChildAt(1)
+        panelContent = getChildAt(1) as PlayingView
+        panelContent.setSlidingPanel(this)
         val (widthSize, heightSize) = MeasureSpec.getSize(widthMeasureSpec) to MeasureSpec.getSize(heightMeasureSpec)
         setMeasuredDimension(widthSize, heightSize)
         mainContent.measure(widthMeasureSpec, heightMeasureSpec)
@@ -175,6 +176,7 @@ class SlidingPanel @JvmOverloads constructor(
                 }
             } else {
                 slideOffset = computeSlideOffset(top)
+                panelContent.onSlide(slideOffset)
                 onSlideListener?.onSlide(slideOffset)
             }
         }

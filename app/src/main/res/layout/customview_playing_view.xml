@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="isPlaying"
+            type="boolean" />
+
+        <variable
+            name="slideOffset"
+            type="float" />
+
+        <import type="android.view.View" />
+
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/playing_view_background"
+        android:clipChildren="false">
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/playing_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/separator"
+            app:layout_constraintVertical_chainStyle="spread">
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/margin_medium"
+                android:paddingTop="@dimen/margin_small"
+                android:paddingEnd="@dimen/margin_medium"
+                android:paddingBottom="140dp"
+                tools:text="@sample/playingview.json/podcast/description" />
+
+        </android.support.v4.widget.NestedScrollView>
+
+        <View
+            android:id="@+id/top_background"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/bottom_navigation_height"
+            android:background="@color/playing_view_background"
+            android:paddingTop="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/separator_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/separator_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_background" />
+
+        <ImageView
+            android:id="@+id/artwork"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:contentDescription="@string/content_description_artwork"
+            android:padding="5dp"
+            android:src="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/separator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/podcast_name"
+            app:layout_constraintEnd_toStartOf="@id/header_play_pause"
+            app:layout_constraintStart_toEndOf="@id/artwork"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_goneMarginEnd="@dimen/playing_view_gone_margin_end"
+            tools:text="@sample/playingview.json/podcast/title" />
+
+        <TextView
+            android:id="@+id/podcast_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/separator"
+            app:layout_constraintEnd_toEndOf="@id/title"
+            app:layout_constraintStart_toEndOf="@id/artwork"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            tools:text="@sample/playingview.json/podcast/subtitle" />
+
+        <ImageView
+            android:id="@+id/header_play_pause"
+            style="@style/ClickableImageViewStyle"
+            android:layout_width="@dimen/bottom_navigation_height"
+            android:layout_height="@dimen/bottom_navigation_height"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:adjustViewBounds="true"
+            android:alpha="@{1f - slideOffset / 0.15f}"
+            android:contentDescription="@{isPlaying ? @string/content_description_pause : @string/content_description_play"
+            android:padding="@dimen/margin_small"
+            android:src="@{isPlaying ? @drawable/ic_pause_black : @drawable/ic_play_arrow_black}"
+            android:visibility="@{(slideOffset &lt;= 0.15) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/separator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/title"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/header_collapse"
+            style="@style/ClickableImageViewStyle"
+            android:layout_width="@dimen/bottom_navigation_height"
+            android:layout_height="@dimen/bottom_navigation_height"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:adjustViewBounds="true"
+            android:alpha="@{(slideOffset - 0.85f) / 0.15f}"
+            android:contentDescription="@string/content_description_collapse"
+            android:padding="@dimen/margin_small"
+            android:src="@drawable/ic_collapse_black"
+            android:visibility="@{(slideOffset &gt;= 0.85) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/separator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/header_play_pause"
+            app:layout_constraintStart_toEndOf="@id/title"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/controller_background"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/playing_view_controller_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/play_pause" />
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_extra_small"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:text="@string/position_placeholder"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/seekbar"
+            app:layout_constraintTop_toBottomOf="@id/seekbar"
+            tools:text="@sample/playingview.json/podcast/duration" />
+
+        <TextView
+            android:id="@+id/time_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_extra_small"
+            android:layout_marginEnd="@dimen/margin_extra_small"
+            android:text="@string/time_separator"
+            app:layout_constraintBottom_toBottomOf="@id/duration"
+            app:layout_constraintEnd_toStartOf="@id/duration" />
+
+        <TextView
+            android:id="@+id/current_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_extra_small"
+            android:layout_marginEnd="@dimen/margin_extra_small"
+            android:text="@string/position_placeholder"
+            app:layout_constraintBottom_toBottomOf="@id/duration"
+            app:layout_constraintEnd_toStartOf="@id/time_separator"
+            tools:text="@sample/playingview.json/podcast/current_position" />
+
+        <android.support.v7.widget.AppCompatSeekBar
+            android:id="@+id/seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_extra_small"
+            app:layout_constraintBottom_toTopOf="@id/current_position" />
+
+        <ImageView
+            android:id="@+id/play_pause"
+            style="@style/ClickableImageViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@{isPlaying ? @string/content_description_pause : @string/content_description_play"
+            android:padding="@dimen/margin_small"
+            android:src="@{isPlaying ? @drawable/ic_pause_black : @drawable/ic_play_arrow_black}"
+            app:layout_constraintBottom_toTopOf="@id/seekbar"
+            app:layout_constraintEnd_toStartOf="@id/fast_forward"
+            app:layout_constraintStart_toEndOf="@id/rewind"
+            tools:src="@sample/playingview.json/control/play_pause_src" />
+
+        <ImageView
+            android:id="@+id/rewind"
+            style="@style/ClickableImageViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:contentDescription="@string/content_description_rewind"
+            android:src="@drawable/ic_replay_10_black"
+            app:layout_constraintBottom_toBottomOf="@id/play_pause"
+            app:layout_constraintEnd_toStartOf="@id/play_pause"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/play_pause" />
+
+        <ImageView
+            android:id="@+id/fast_forward"
+            style="@style/ClickableImageViewStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:contentDescription="@string/content_description_fast_forward"
+            android:elevation="10dp"
+            android:src="@drawable/ic_forward_10_black"
+            app:layout_constraintBottom_toBottomOf="@id/play_pause"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/play_pause"
+            app:layout_constraintTop_toTopOf="@id/play_pause" />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+</layout>

@@ -8,13 +8,14 @@ import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.databinding.ActivityMainBinding
 import io.github.pps5.materialpodcasts.di.ACTIVITY_SCOPE
 import io.github.pps5.materialpodcasts.model.Track
-import io.github.pps5.materialpodcasts.service.MediaSubscriber
 import io.github.pps5.materialpodcasts.service.MediaService
+import io.github.pps5.materialpodcasts.service.MediaSubscriber
 import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.COLLAPSED
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.PEEK_HEIGHT_CHANGING
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.getKoin
+import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity(),
@@ -22,7 +23,7 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var topLevelNavigator: Navigator
-    private val mediaSubscriber by lazy { MediaSubscriber(this) }
+    private val mediaSubscriber: MediaSubscriber by inject()
 
     override fun onBackPressed() {
         when {

@@ -31,6 +31,21 @@ class MediaRepository : BaseRepository(), KoinComponent {
         return@coroutineScope null
     }
 
+    suspend fun getTrackAndPodcastName(collectionId: Long, trackNumber: Int): Pair<String, Track>? {
+        return coroutineScope {
+            arrayOf(database, cache).forEach {
+                it.withTransaction {
+                    val track = getTrackDAO().find(collectionId, trackNumber)
+                    val name = getPodcastDAO().find(collectionId)?.collectionName
+                    if (track != null && name != null) {
+                        return@coroutineScope name to track
+                    }
+                }
+            }
+            return@coroutineScope null
+        }
+    }
+
     suspend fun getArtworkUri(collectionId: Long) = coroutineScope {
         database.getPodcastDAO().find(collectionId)?.let { return@coroutineScope getMaximumSizeArtwork(it) }
         cache.getPodcastDAO().find(collectionId)?.let { return@coroutineScope getMaximumSizeArtwork(it) }

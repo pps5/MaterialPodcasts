@@ -16,12 +16,10 @@ private const val PLAYBACK_CHANNEL_NAME = "Playback"
 
 interface HasNotificationAction {
 
-    @RequiresApi(Build.VERSION_CODES.N)
     enum class NotificationGroup(val groupName: String) {
         Playback(groupName = PLAYBACK_GROUP_NAME)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     enum class NotificationType(
         val channelName: String,
         val importance: Int

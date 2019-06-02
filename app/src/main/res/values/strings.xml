@@ -20,4 +20,15 @@
     <string name="subscribe">購読</string>
     <string name="download_episode">保存</string>
     <string name="share">共有</string>
+
+    <!-- PlayingView -->
+    <string name="time_separator">/</string>
+    <string name="position_format">%d:%02d</string>
+    <string name="position_placeholder">--:--</string>
+    <string name="content_description_rewind">Rewind</string>
+    <string name="content_description_fast_forward">Fast forward</string>
+    <string name="content_description_play">Play</string>
+    <string name="content_description_pause">Pause</string>
+    <string name="content_description_collapse">Collapse</string>
+    <string name="content_description_artwork">Artwork</string>
 </resources>

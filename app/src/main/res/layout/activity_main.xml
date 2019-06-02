@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <android.support.constraint.ConstraintLayout
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -12,7 +13,7 @@
         <io.github.pps5.materialpodcasts.view.customview.SlidingPanel
             android:id="@+id/sliding_up_panel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,11 +28,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <android.support.design.widget.CoordinatorLayout
+            <io.github.pps5.materialpodcasts.view.customview.PlayingView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/design_default_color_primary"
-                tools:context=".view.MainActivity" />
+                android:layout_height="match_parent" />
 
         </io.github.pps5.materialpodcasts.view.customview.SlidingPanel>
 
@@ -40,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_navigation_height"
             android:layout_gravity="bottom"
-            android:background="?android:attr/windowBackground"
+            android:background="@drawable/bottom_navigation_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

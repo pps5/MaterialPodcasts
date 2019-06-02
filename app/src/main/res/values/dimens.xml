@@ -6,6 +6,7 @@
     <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_medium">16dp</dimen>
     <dimen name="margin_large">32dp</dimen>
+    <dimen name="margin_extra_large">42dp</dimen>
     <dimen name="panel_height">56dp</dimen>
     <dimen name="bottom_navigation_height">56dp</dimen>
     <dimen name="top_level_fragment_padding">112dp</dimen>
@@ -24,4 +25,7 @@
     <dimen name="font_size_podcast_title">18sp</dimen>
     <dimen name="font_size_episode_header">18sp</dimen>
     <dimen name="track_list_height">64dp</dimen>
+
+    <!-- PlayingView -->
+    <dimen name="playing_view_gone_margin_end">64dp</dimen>
 </resources>

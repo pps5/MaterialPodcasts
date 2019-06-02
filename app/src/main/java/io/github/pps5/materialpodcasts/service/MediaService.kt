@@ -48,7 +48,7 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
     private lateinit var mediaSessionCallback: MediaSessionCallback
     private lateinit var updateHandler: Handler
 
-    private val playerStateChangedListener = object: Player.EventListener {
+    private val playerStateChangedListener = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             updatePlaybackState()
         }
@@ -101,6 +101,16 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
                 if (exoPlayer.playbackState == Player.STATE_READY && exoPlayer.playWhenReady) {
                     updatePlaybackState()
                 }
+                mediaSession.controller.metadata?.let {
+                    val metadataDuration = it.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+                    val mediaDuration = exoPlayer.duration
+                    if (metadataDuration != mediaDuration) {
+                        val newMetadata = MediaMetadataCompat.Builder(it)
+                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaDuration)
+                            .build()
+                        mediaSession.setMetadata(newMetadata)
+                    }
+                }
                 updateHandler.postDelayed(this, UPDATE_INTERVAL_IN_MILLIS)
             }
         }, UPDATE_INTERVAL_IN_MILLIS)
@@ -116,23 +126,26 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
         GlobalScope.launch {
             val (collectionId, trackNumber) = idSplit[0].toLong() to idSplit[1].toInt()
             Log.d(TAG, "collectionId: $collectionId, trackNumber: $trackNumber")
-            val track = mediaRepository.getTrack(collectionId, trackNumber)
-            if (track == null) {
+            val nameAndTrack = mediaRepository.getTrackAndPodcastName(collectionId, trackNumber)
+            if (nameAndTrack == null) {
                 result.sendResult(mutableListOf())
             } else {
+                val (name, track) = nameAndTrack
                 Log.d(TAG, "$track,  ${mediaRepository.getArtworkUri(collectionId)}")
                 result.sendResult(mutableListOf(
-                    createMediaItem(track, mediaRepository.getArtworkUri(collectionId))
+                    createMediaItem(name, track, mediaRepository.getArtworkUri(collectionId))
                 ))
             }
         }
     }
 
-    private fun createMediaItem(track: Track, artworkUrl: String?) = track.let {
+    private fun createMediaItem(name: String, track: Track, artworkUrl: String?) = track.let {
         val description = MediaDescriptionCompat.Builder()
             .setMediaId(it.trackId.toString())
             .setMediaUri(Uri.parse(it.url))
             .setTitle(it.title)
+            .setSubtitle(name)
+            .setDescription(it.description)
             .applyIf(artworkUrl != null) { setIconUri(Uri.parse(artworkUrl)) }
             .build()
         MediaBrowserCompat.MediaItem(description, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE)
