@@ -15,6 +15,8 @@ import io.github.pps5.materialpodcasts.view.viewmodel.PodcastDetailViewModel
 import io.github.pps5.materialpodcasts.vo.Resource
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.ResolverStyle
+import java.text.ParsePosition
 
 class PodcastDetailAdapter(
     private val viewModel: PodcastDetailViewModel,
@@ -29,8 +31,8 @@ class PodcastDetailAdapter(
         private const val EPISODE_HEADER_TYPE = 2
     }
 
-    private val formatter = DateTimeFormatter.ofPattern("yyyy/M/d")
-    private val parser = DateTimeFormatter.ofPattern("E, d MMM yyyy HH:mm:ss Z")
+    private val formatter = DateTimeFormatter.ofPattern("yyyy/M/d").withResolverStyle(ResolverStyle.LENIENT)
+    private val parser = DateTimeFormatter.ofPattern("d MMM yyyy").withResolverStyle(ResolverStyle.LENIENT)
     private var trackList = listOf<Track>()
     private val channelObserver = Observer<Resource<Channel>> {
         when (it) {
@@ -71,7 +73,8 @@ class PodcastDetailAdapter(
     private inner class TrackViewHolder(val binding: ListItemTrackBinding) : BaseViewHolder(binding) {
         override fun bind(position: Int) {
             binding.item = trackList[position - 3]
-            binding.pubDate = LocalDate.parse(trackList[position - 3].pubDate, parser).format(formatter)
+            val pubDate = LocalDate.from(parser.parse(trackList[position - 3].pubDate, ParsePosition(5)))
+            binding.pubDate = pubDate.format(formatter)
             binding.trackSelectListener = trackSelectListener
         }
     }
