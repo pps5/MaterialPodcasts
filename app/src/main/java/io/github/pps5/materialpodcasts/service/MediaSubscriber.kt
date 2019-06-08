@@ -75,7 +75,7 @@ class MediaSubscriber(private val context: Context) {
     fun pause() = mediaController?.transportControls?.pause()
     fun seekTo(position: Long) = mediaController?.transportControls?.seekTo(position)
     fun rewind() = mediaController?.transportControls?.rewind()
-    fun fastFoward() = mediaController?.transportControls?.fastForward()
+    fun fastForward() = mediaController?.transportControls?.fastForward()
 
     fun disconnect() = mediaBrowser?.disconnect()
 

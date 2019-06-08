@@ -97,7 +97,7 @@ class PlayingView @JvmOverloads constructor(
             it.headerCollapse.setOnClickListener { slidingPanel?.panelState = SlidingPanel.PanelState.COLLAPSED }
             it.playPause.setOnClickListener(onClickPlayPause)
             it.rewind.setOnClickListener { mediaSubscriber.rewind() }
-            it.fastForward.setOnClickListener { mediaSubscriber.fastFoward() }
+            it.fastForward.setOnClickListener { mediaSubscriber.fastForward() }
         }
     }
 
