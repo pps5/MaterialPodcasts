@@ -6,8 +6,6 @@ import android.content.Intent
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.support.v4.app.NotificationCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
@@ -25,12 +23,16 @@ import io.github.pps5.materialpodcasts.R
 import io.github.pps5.materialpodcasts.extension.applyIf
 import io.github.pps5.materialpodcasts.model.Track
 import io.github.pps5.materialpodcasts.repository.MediaRepository
+import io.github.pps5.materialpodcasts.service.NotificationDeleteReceiver.Companion.DELETE_NOTIFICATION
 import io.github.pps5.materialpodcasts.util.HasNotificationAction
 import io.github.pps5.materialpodcasts.util.HasNotificationAction.NotificationType
 import io.github.pps5.materialpodcasts.view.MainActivity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
 
@@ -46,7 +48,7 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
     private lateinit var audioManager: AudioManager
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaSessionCallback: MediaSessionCallback
-    private lateinit var updateHandler: Handler
+    private lateinit var updateExecutor: ScheduledExecutorService
 
     private val playerStateChangedListener = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -66,6 +68,7 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
     override fun onDestroy() {
         mediaSession.isActive = false
         mediaSession.release()
+        exoPlayer.removeListener(playerStateChangedListener)
         exoPlayer.stop()
         exoPlayer.release()
     }
@@ -81,9 +84,10 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
         mediaSession.setCallback(mediaSessionCallback)
         sessionToken = mediaSession.sessionToken
         mediaSession.controller.registerCallback(object : MediaControllerCompat.Callback() {
+            private var lastState = PlaybackStateCompat.STATE_NONE
+
             override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-                Log.d("dbg", "state: $state")
-                if (state?.state != PlaybackStateCompat.STATE_STOPPED) {
+                if (state?.state != lastState) {
                     createNotification()
                 }
             }
@@ -95,25 +99,20 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
     }
 
     private fun setUpPlaybackUpdater() {
-        updateHandler = Handler(Looper.getMainLooper())
-        updateHandler.postDelayed(object : Runnable {
-            override fun run() {
-                if (exoPlayer.playbackState == Player.STATE_READY && exoPlayer.playWhenReady) {
-                    updatePlaybackState()
+        updateExecutor = Executors.newScheduledThreadPool(1)
+        updateExecutor.scheduleAtFixedRate({
+            mediaSession.controller.metadata?.let {
+                val metadataDuration = it.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+                val mediaDuration = exoPlayer.duration
+                if (metadataDuration != mediaDuration) {
+                    val newMetadata = MediaMetadataCompat.Builder(it)
+                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaDuration)
+                        .build()
+                    mediaSession.setMetadata(newMetadata)
                 }
-                mediaSession.controller.metadata?.let {
-                    val metadataDuration = it.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
-                    val mediaDuration = exoPlayer.duration
-                    if (metadataDuration != mediaDuration) {
-                        val newMetadata = MediaMetadataCompat.Builder(it)
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaDuration)
-                            .build()
-                        mediaSession.setMetadata(newMetadata)
-                    }
-                }
-                updateHandler.postDelayed(this, UPDATE_INTERVAL_IN_MILLIS)
             }
-        }, UPDATE_INTERVAL_IN_MILLIS)
+            updatePlaybackState()
+        }, 0, UPDATE_INTERVAL_IN_MILLIS, TimeUnit.MILLISECONDS)
     }
 
     override fun onLoadChildren(mediaId: String, result: Result<MutableList<MediaBrowserCompat.MediaItem>>) {
@@ -175,8 +174,8 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
             .setContentIntent(createContentIntent())
             .setSmallIcon(R.drawable.ic_share_black_24dp)  // todo: replace icon
             .setLargeIcon(description.iconBitmap)
-            .setDeleteIntent(MediaButtonReceiver
-                .buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_STOP))
+            .setDeleteIntent(PendingIntent.getBroadcast(
+                this, 0, Intent(DELETE_NOTIFICATION), 0))
             .addActionsForPlayback(this, controller.playbackState?.state)
             .setStyle(
                 android.support.v4.media.app.NotificationCompat.MediaStyle()

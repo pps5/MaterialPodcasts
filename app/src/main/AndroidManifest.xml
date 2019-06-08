@@ -36,6 +36,11 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </receiver>
+        <receiver android:name=".service.NotificationDeleteReceiver">
+            <intent-filter>
+                <action android:name="delete_notification"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
