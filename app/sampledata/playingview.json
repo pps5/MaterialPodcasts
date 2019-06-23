@@ -1,9 +1,4 @@
 {
-  "control": [
-    {
-      "play_pause_src": "@drawable/ic_play_arrow_black",
-    }
-  ],
   "podcast": [
     {
       "title": "ポラーノの広場",

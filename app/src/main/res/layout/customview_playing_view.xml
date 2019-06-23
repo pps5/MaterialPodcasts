@@ -6,12 +6,12 @@
     <data>
 
         <variable
-            name="isPlaying"
-            type="boolean" />
+            name="viewModel"
+            type="io.github.pps5.materialpodcasts.view.customview.PlayingView.PlayingViewModel" />
 
         <variable
-            name="slideOffset"
-            type="float" />
+            name="mediaSubscriber"
+            type="io.github.pps5.materialpodcasts.service.MediaSubscriber" />
 
         <import type="android.view.View" />
 
@@ -42,6 +42,7 @@
                 android:paddingTop="@dimen/margin_small"
                 android:paddingEnd="@dimen/margin_medium"
                 android:paddingBottom="140dp"
+                android:text="@{viewModel.playingData.description}"
                 tools:text="@sample/playingview.json/podcast/description" />
 
         </android.support.v4.widget.NestedScrollView>
@@ -80,7 +81,7 @@
             android:layout_marginStart="@dimen/margin_small"
             android:contentDescription="@string/content_description_artwork"
             android:padding="5dp"
-            android:src="@color/black"
+            app:artwork="@{viewModel.playingData.artwork}"
             app:layout_constraintBottom_toBottomOf="@id/separator"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -96,6 +97,7 @@
             android:lines="1"
             android:textSize="14sp"
             android:textStyle="bold"
+            android:text="@{viewModel.playingData.title}"
             app:layout_constraintBottom_toTopOf="@id/podcast_name"
             app:layout_constraintEnd_toStartOf="@id/header_play_pause"
             app:layout_constraintStart_toEndOf="@id/artwork"
@@ -112,6 +114,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:textSize="12sp"
+            android:text="@{viewModel.playingData.podcastName}"
             app:layout_constraintBottom_toBottomOf="@id/separator"
             app:layout_constraintEnd_toEndOf="@id/title"
             app:layout_constraintStart_toEndOf="@id/artwork"
@@ -125,11 +128,11 @@
             android:layout_height="@dimen/bottom_navigation_height"
             android:layout_marginEnd="@dimen/margin_small"
             android:adjustViewBounds="true"
-            android:alpha="@{1f - slideOffset / 0.15f}"
-            android:contentDescription="@{isPlaying ? @string/content_description_pause : @string/content_description_play"
+            android:alpha="@{1f - viewModel.slideOffset / 0.15f}"
+            android:contentDescription="@{viewModel.isPlaying ? @string/content_description_pause : @string/content_description_play"
             android:padding="@dimen/margin_small"
-            android:src="@{isPlaying ? @drawable/ic_pause_black : @drawable/ic_play_arrow_black}"
-            android:visibility="@{(slideOffset &lt;= 0.15) ? View.VISIBLE : View.GONE}"
+            android:src="@{viewModel.isPlaying ? @drawable/ic_pause_black : @drawable/ic_play_arrow_black}"
+            android:visibility="@{(viewModel.slideOffset &lt;= 0.15) ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="@id/separator"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/title"
@@ -143,11 +146,11 @@
             android:layout_height="@dimen/bottom_navigation_height"
             android:layout_marginEnd="@dimen/margin_small"
             android:adjustViewBounds="true"
-            android:alpha="@{(slideOffset - 0.85f) / 0.15f}"
+            android:alpha="@{(viewModel.slideOffset - 0.85f) / 0.15f}"
             android:contentDescription="@string/content_description_collapse"
             android:padding="@dimen/margin_small"
             android:src="@drawable/ic_collapse_black"
-            android:visibility="@{(slideOffset &gt;= 0.85) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{(viewModel.slideOffset &gt;= 0.85) ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="@id/separator"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@id/header_play_pause"
@@ -175,6 +178,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/seekbar"
             app:layout_constraintTop_toBottomOf="@id/seekbar"
+            app:time="@{viewModel.playingData.duration}"
             tools:text="@sample/playingview.json/podcast/duration" />
 
         <TextView
@@ -194,6 +198,7 @@
             android:layout_marginStart="@dimen/margin_extra_small"
             android:layout_marginEnd="@dimen/margin_extra_small"
             android:text="@string/position_placeholder"
+            app:time="@{viewModel.position}"
             app:layout_constraintBottom_toBottomOf="@id/duration"
             app:layout_constraintEnd_toStartOf="@id/time_separator"
             tools:text="@sample/playingview.json/podcast/current_position" />
@@ -212,13 +217,14 @@
             style="@style/ClickableImageViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@{isPlaying ? @string/content_description_pause : @string/content_description_play"
+            android:contentDescription="@{viewModel.isPlaying ? @string/content_description_pause : @string/content_description_play"
             android:padding="@dimen/margin_small"
-            android:src="@{isPlaying ? @drawable/ic_pause_black : @drawable/ic_play_arrow_black}"
+            android:onClick="@{() -> viewModel.isPlaying ? mediaSubscriber.pause() : mediaSubscriber.play()}"
+            android:src="@{viewModel.isPlaying ? @drawable/ic_pause_black : @drawable/ic_play_arrow_black}"
             app:layout_constraintBottom_toTopOf="@id/seekbar"
             app:layout_constraintEnd_toStartOf="@id/fast_forward"
             app:layout_constraintStart_toEndOf="@id/rewind"
-            tools:src="@sample/playingview.json/control/play_pause_src" />
+            tools:src="@drawable/ic_play_arrow_black" />
 
         <ImageView
             android:id="@+id/rewind"
@@ -229,6 +235,7 @@
             android:layout_marginEnd="@dimen/margin_medium"
             android:contentDescription="@string/content_description_rewind"
             android:src="@drawable/ic_replay_10_black"
+            android:onClick="@{() -> mediaSubscriber.rewind()}"
             app:layout_constraintBottom_toBottomOf="@id/play_pause"
             app:layout_constraintEnd_toStartOf="@id/play_pause"
             app:layout_constraintHorizontal_chainStyle="packed"
@@ -244,6 +251,7 @@
             android:layout_marginEnd="@dimen/margin_medium"
             android:contentDescription="@string/content_description_fast_forward"
             android:elevation="10dp"
+            android:onClick="@{() -> mediaSubscriber.fastForward()}"
             android:src="@drawable/ic_forward_10_black"
             app:layout_constraintBottom_toBottomOf="@id/play_pause"
             app:layout_constraintEnd_toEndOf="parent"

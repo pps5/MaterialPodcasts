@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="io.github.pps5.materialpodcasts.view.viewmodel.MainViewModel" />
+    </data>
     <android.support.constraint.ConstraintLayout
         android:background="@color/white"
         android:layout_width="match_parent"
@@ -29,6 +34,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <io.github.pps5.materialpodcasts.view.customview.PlayingView
+                android:id="@+id/playing_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

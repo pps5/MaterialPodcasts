@@ -14,9 +14,10 @@ import io.github.pps5.materialpodcasts.service.MediaSubscriber
 import io.github.pps5.materialpodcasts.view.adapter.PodcastDetailAdapter
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.COLLAPSED
 import io.github.pps5.materialpodcasts.view.customview.SlidingPanel.PanelState.PEEK_HEIGHT_CHANGING
+import io.github.pps5.materialpodcasts.view.viewmodel.MainViewModel
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.getKoin
-import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity(),
@@ -28,13 +29,15 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var topLevelNavigator: Navigator
-    private val mediaSubscriber: MediaSubscriber by inject()
+    private val viewModel by viewModel<MainViewModel>()
+    private var mediaSubscriber: MediaSubscriber? = null
 
     override fun onBackPressed() {
         when {
             binding.slidingUpPanel.panelState == PEEK_HEIGHT_CHANGING -> {
             }
-            binding.slidingUpPanel.panelState != COLLAPSED -> binding.slidingUpPanel.panelState = COLLAPSED
+            binding.slidingUpPanel.panelState != COLLAPSED ->
+                binding.slidingUpPanel.panelState = COLLAPSED
             supportFragmentManager.backStackEntryCount == 1 -> topLevelNavigator.onBack()
             else -> super.onBackPressed()
         }
@@ -43,8 +46,18 @@ class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.slidingUpPanel.onSlideListener = binding.navigation
-        binding.slidingUpPanel.onChangeListener = binding.navigation
+        bind()
+    }
+
+    private fun bind() {
+        binding.setLifecycleOwner(this)
+        binding.viewModel = viewModel
+        binding.slidingUpPanel.let {
+            it.addOnSlideListener(binding.navigation)
+            it.addOnSlideListener(viewModel)
+            it.onChangeListener = binding.navigation
+        }
+        binding.playingView.setViewModel(this, viewModel)
     }
 
     override fun onStart() {
@@ -53,18 +66,20 @@ class MainActivity : AppCompatActivity(),
         topLevelNavigator = get { parametersOf(supportFragmentManager, binding.slidingUpPanel) }
         binding.navigation.setOnNavigationItemSelectedListener(topLevelNavigator)
         startService(Intent(this, MediaService::class.java))
-        mediaSubscriber.connect()
+        mediaSubscriber = MediaSubscriber(this).also { it.connect() }
+        viewModel.onStart(mediaSubscriber!!)
     }
 
     override fun onStop() {
         super.onStop()
         getKoin().scopeRegistry.getScope(ACTIVITY_SCOPE)?.close()
-        mediaSubscriber.disconnect()
+        viewModel.onStop()
+        mediaSubscriber?.disconnect()
     }
 
     override fun onSelect(track: Track) {
         Log.d(TAG, "onSelect: $track")
-        mediaSubscriber.subscribe("${track.collectionId}/${track.trackNumber}")
+        mediaSubscriber?.play(track)
     }
 
 }

@@ -6,9 +6,9 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -22,6 +22,9 @@ import io.github.pps5.materialpodcasts.repository.MediaRepository
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
+/**
+ * Handle actions like play, pause, etc.
+ */
 class MediaSessionCallback(
     private val mediaSession: MediaSessionCompat,
     private val audioManager: AudioManager,
@@ -32,6 +35,8 @@ class MediaSessionCallback(
         const val BUNDLE_KEY_DESCRIPTION = "description"
         private const val REWIND_DURATION_IN_MILLIS = 10_000L
         private const val FASTFORWARD_DURATION_IN_MILLIS = 10_000L
+
+        const val COMMAND_PLAY = "play"
     }
 
     private var audioFocusRequest: AudioFocusRequest? = null
@@ -40,6 +45,28 @@ class MediaSessionCallback(
     override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
         val description = extras?.getParcelable<MediaDescriptionCompat>(BUNDLE_KEY_DESCRIPTION)
             ?: throw IllegalStateException("Extra must have metadata")
+        val mediaSource = ExtractorMediaSource
+            .Factory(DefaultHttpDataSourceFactory("exoplayer"))
+            .createMediaSource(description.mediaUri)
+        exoPlayer.prepare(mediaSource, true, true)
+        mediaRepository.fetchArtwork(description.iconUri.toString()) {
+            mediaSession.setMetadata(description.toMetadata(it))
+            onPlay()
+        }
+    }
+
+    override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+        when (command) {
+            COMMAND_PLAY -> play(extras?.getParcelable(BUNDLE_KEY_DESCRIPTION))
+            else -> {
+            }
+        }
+    }
+
+    private fun play(description: MediaDescriptionCompat?) {
+        if (description == null) {
+            throw IllegalArgumentException("Media description is required.")
+        }
         val mediaSource = ExtractorMediaSource
             .Factory(DefaultHttpDataSourceFactory("exoplayer"))
             .createMediaSource(description.mediaUri)
@@ -61,10 +88,6 @@ class MediaSessionCallback(
             .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, subtitle.toString())
             .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, description.toString())
             .build()
-
-    @Deprecated("Use onPlayFromMediaId")
-    override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
-    }
 
     override fun onPlay() {
         if (requestAudioFocus() == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {

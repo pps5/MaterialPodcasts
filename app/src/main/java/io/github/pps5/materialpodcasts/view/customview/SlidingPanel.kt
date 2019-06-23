@@ -36,7 +36,7 @@ class SlidingPanel @JvmOverloads constructor(
             if (field == value) return
             field = value
             if (isFirstLayout) return
-            onSlideListener?.onStateChanged(value)
+            onSlideListeners.forEach { it.onStateChanged(value) }
             when (value) {
                 EXPANDED -> smoothSlideTo(1f)
                 COLLAPSED -> smoothSlideTo(0f)
@@ -51,7 +51,7 @@ class SlidingPanel @JvmOverloads constructor(
     private var slideRange: Int = 0
     private var slideOffset: Float = 0f
 
-    var onSlideListener: OnSlideListener? = null
+    private val onSlideListeners: ArrayList<OnSlideListener> = arrayListOf()
     var onChangeListener: OnPeekHeightChangeListener? = null
 
     private val expandedTop
@@ -59,6 +59,8 @@ class SlidingPanel @JvmOverloads constructor(
 
     private val collapsedTop
         get() = computePanelTop(0f)
+
+    fun addOnSlideListener(listener: OnSlideListener) = onSlideListeners.add(listener)
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
@@ -176,8 +178,7 @@ class SlidingPanel @JvmOverloads constructor(
                 }
             } else {
                 slideOffset = computeSlideOffset(top)
-                panelContent.onSlide(slideOffset)
-                onSlideListener?.onSlide(slideOffset)
+                onSlideListeners.forEach { it.onSlide(slideOffset) }
             }
         }
 
@@ -204,7 +205,7 @@ class SlidingPanel @JvmOverloads constructor(
                     1f -> panelState = EXPANDED
                 }
             }
-            onSlideListener?.onStateChanged(panelState)
+            onSlideListeners.forEach { it.onStateChanged(panelState) }
         }
 
         override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {

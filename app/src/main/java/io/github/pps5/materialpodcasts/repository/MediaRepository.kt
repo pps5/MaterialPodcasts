@@ -31,6 +31,18 @@ class MediaRepository : BaseRepository(), KoinComponent {
         return@coroutineScope null
     }
 
+    suspend fun getPodcastName(collectionId: Long): String? = coroutineScope {
+        arrayOf(database, cache).forEach {
+            it.withTransaction {
+                val name = getPodcastDAO().find(collectionId)?.collectionName
+                if (name != null) {
+                    return@coroutineScope name
+                }
+            }
+        }
+        return@coroutineScope null
+    }
+
     suspend fun getTrackAndPodcastName(collectionId: Long, trackNumber: Int): Pair<String, Track>? {
         return coroutineScope {
             arrayOf(database, cache).forEach {

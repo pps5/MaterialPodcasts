@@ -15,7 +15,6 @@ import org.koin.standalone.KoinComponent
 class BottomNavigation : BottomNavigationView, KoinComponent,
     SlidingPanel.OnSlideListener, SlidingPanel.OnPeekHeightChangeListener {
 
-
     companion object {
         private val TAG = BottomNavigation::class.java.simpleName
         private const val BUNDLE_KEY_OLD_STATE = "old_state"
