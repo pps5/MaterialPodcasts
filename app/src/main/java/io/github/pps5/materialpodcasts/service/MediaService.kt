@@ -136,6 +136,9 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
         return BrowserRoot(ROOT_ID, null)
     }
 
+    /**
+     * Update notification and start/stop foreground service if need
+     */
     private fun updateNotification(playbackState: PlaybackStateCompat) {
         val metadata = mediaSession.controller.metadata
         if (metadata == null || !mediaSession.isActive) {
@@ -155,6 +158,9 @@ class MediaService : MediaBrowserServiceCompat(), HasNotificationAction {
         }
     }
 
+    /**
+     * Set playback state for media session from exoplayer state
+     */
     private fun updatePlaybackState() {
         val state = when (exoPlayer.playbackState) {
             Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
