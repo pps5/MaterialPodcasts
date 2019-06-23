@@ -42,19 +42,6 @@ class MediaSessionCallback(
     private var audioFocusRequest: AudioFocusRequest? = null
     private val mediaRepository: MediaRepository by inject()
 
-    override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-        val description = extras?.getParcelable<MediaDescriptionCompat>(BUNDLE_KEY_DESCRIPTION)
-            ?: throw IllegalStateException("Extra must have metadata")
-        val mediaSource = ExtractorMediaSource
-            .Factory(DefaultHttpDataSourceFactory("exoplayer"))
-            .createMediaSource(description.mediaUri)
-        exoPlayer.prepare(mediaSource, true, true)
-        mediaRepository.fetchArtwork(description.iconUri.toString()) {
-            mediaSession.setMetadata(description.toMetadata(it))
-            onPlay()
-        }
-    }
-
     override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
         when (command) {
             COMMAND_PLAY -> play(extras?.getParcelable(BUNDLE_KEY_DESCRIPTION))

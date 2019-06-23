@@ -20,7 +20,6 @@ import org.koin.standalone.inject
 
 class MediaSubscriber(private val context: Context) : KoinComponent {
 
-    private lateinit var subscribeInternal: (String) -> Unit
     var mediaBrowser: MediaBrowserCompat? = null
     var mediaController: MediaControllerCompat? = null
     private val playlist = mutableListOf<MediaBrowserCompat.MediaItem>()
@@ -43,50 +42,20 @@ class MediaSubscriber(private val context: Context) : KoinComponent {
         }
     }
 
-    private var subscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, children: MutableList<MediaBrowserCompat.MediaItem>) {
-            when (children.size) {
-                0 -> { // todo: error handling (fetch again?)
-                }
-                1 -> {
-                    val extra = Bundle().also { it.putParcelable(BUNDLE_KEY_DESCRIPTION, children[0].description) }
-                    mediaController?.transportControls?.playFromMediaId(parentId, extra)
-                }
-                else -> {
-                    playlist.addAll(children)
-                    val extra = Bundle().also { it.putParcelable(BUNDLE_KEY_DESCRIPTION, children[0].description) }
-                    mediaController?.transportControls?.playFromMediaId(parentId, extra)
-                }
-            }
-        }
-    }
-
     fun connect() {
         mediaBrowser = MediaBrowserCompat(context,
             ComponentName(context, MediaService::class.java), connectionCallback, null)
         mediaBrowser?.connect()
-        var lastSubscribedId = "/"
-        subscribeInternal = { mediaId: String ->
-            mediaBrowser?.let {
-                synchronized(lastSubscribedId) {
-                    it.unsubscribe(lastSubscribedId)
-                    lastSubscribedId = mediaId
-                    it.subscribe(mediaId, subscriptionCallback)
-                }
-            }
-        }
     }
 
-    fun play() = mediaController?.transportControls?.play()
+    fun disconnect() = mediaBrowser?.disconnect()
+
     fun pause() = mediaController?.transportControls?.pause()
     fun seekTo(position: Long) = mediaController?.transportControls?.seekTo(position)
     fun rewind() = mediaController?.transportControls?.rewind()
     fun fastForward() = mediaController?.transportControls?.fastForward()
 
-    fun disconnect() = mediaBrowser?.disconnect()
-
-    fun subscribe(mediaId: String) = subscribeInternal(mediaId)
-
+    fun play() = mediaController?.transportControls?.play()
     fun play(track: Track) {
         GlobalScope.launch {
             val podcastName = mediaRepository.getPodcastName(track.collectionId) ?: ""
@@ -97,7 +66,6 @@ class MediaSubscriber(private val context: Context) : KoinComponent {
             mediaController?.sendCommand(MediaSessionCallback.COMMAND_PLAY, extras, null)
         }
     }
-
 
     private fun createDescription(name: String, track: Track, artworkUrl: String?) = track.let {
         MediaDescriptionCompat.Builder()
